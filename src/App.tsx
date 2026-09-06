@@ -185,7 +185,9 @@ export default function App() {
     setSoalan(first)
     setInput('')
     inputRef.current = ''
-    setSeconds(getMasaSaat())
+    const masa = getMasaSaat()
+    secondsRef.current = masa
+    setSeconds(masa)
     setFlash(null)
     setLock(false)
     setReplayIndex(0)
