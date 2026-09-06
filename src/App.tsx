@@ -206,6 +206,11 @@ export default function App() {
     mula({ announce: true })
   }
 
+  function mulaBaru() {
+    if (screen === 'ulang' || screen === 'markah') persistRound()
+    mula({ announce: true })
+  }
+
   function endPlay() {
     bumpTick()
     cancelPendingJawab()
@@ -382,11 +387,11 @@ export default function App() {
       <CartoonBackdrop />
       <div className="stage mx-auto flex min-h-svh w-full max-w-md flex-col px-4 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-1 flex items-center justify-end gap-2">
-        {screen === 'main' && (
+        {screen !== 'mula' && (
           <button
             type="button"
             data-testid="baru"
-            onClick={() => mula({ announce: true })}
+            onClick={mulaBaru}
             className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
           >
             Baru
