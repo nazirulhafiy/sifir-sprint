@@ -40,6 +40,9 @@ const emptyStats = (): Stats => ({
   misses: [],
 })
 
+/** Grace window so Padam can clear a just-completed answer before auto-submit. */
+const AUTO_JAWAB_MS = 750
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('mula')
   const [seconds, setSeconds] = useState(60)
@@ -53,6 +56,8 @@ export default function App() {
   const [stor, setStor] = useState<Stor>(() => muatStor())
   const [roundId, setRoundId] = useState(0)
   const [bisu, setBisu] = useState(() => muatBisu())
+  const [cue, setCue] = useState<string | null>(null)
+  const [roundPulse, setRoundPulse] = useState(0)
 
   const statsRef = useRef(stats)
   const soalanRef = useRef(soalan)
@@ -64,9 +69,10 @@ export default function App() {
   const tickRef = useRef(0)
   const keysRef = useRef({
     addDigit: (_digit: string) => {},
-    padam: () => {},
+    padamSatu: () => {},
     jawab: (_value: string) => {},
   })
+  const autoJawabRef = useRef<number | null>(null)
 
   function bumpTick() {
     tickRef.current += 1
@@ -102,6 +108,8 @@ export default function App() {
     secondsRef.current = seconds
   }, [seconds])
 
+  useEffect(() => () => cancelPendingJawab(), [])
+
   useEffect(() => {
     if (screen !== 'main') return
     const id = window.setInterval(() => {
@@ -131,7 +139,7 @@ export default function App() {
       }
       if (event.key === 'Backspace') {
         event.preventDefault()
-        keysRef.current.padam()
+        keysRef.current.padamSatu()
         return
       }
       if (event.key === 'Enter') {
@@ -163,9 +171,10 @@ export default function App() {
     savedRef.current = true
   }
 
-  function mula() {
+  function mula(opts?: { announce?: boolean }) {
     if (!bisu) void hidupkanAudio()
     bumpTick()
+    cancelPendingJawab()
     savedRef.current = false
     const next = emptyStats()
     statsRef.current = next
@@ -176,22 +185,37 @@ export default function App() {
     setSoalan(first)
     setInput('')
     inputRef.current = ''
-    setSeconds(getMasaSaat())
+    const masa = getMasaSaat()
+    secondsRef.current = masa
+    setSeconds(masa)
     setFlash(null)
     setLock(false)
     setReplayIndex(0)
     setReveal(null)
     setRoundId((n) => n + 1)
     setScreen('main')
+    if (opts?.announce) {
+      setRoundPulse((n) => n + 1)
+      setCue('Pusingan baru!')
+      afterTick(2400, () => setCue(null))
+    } else {
+      setCue(null)
+    }
   }
 
   function mulaSemula() {
     persistRound()
-    mula()
+    mula({ announce: true })
+  }
+
+  function mulaBaru() {
+    if (screen === 'ulang' || screen === 'markah') persistRound()
+    mula({ announce: true })
   }
 
   function endPlay() {
     bumpTick()
+    cancelPendingJawab()
     const latest = statsRef.current
     if (latest.misses.length > 0) {
       const firstMiss = latest.misses[0]
@@ -220,26 +244,49 @@ export default function App() {
     setStats(next)
   }
 
+  function cancelPendingJawab() {
+    if (autoJawabRef.current === null) return
+    window.clearTimeout(autoJawabRef.current)
+    autoJawabRef.current = null
+  }
+
+  function scheduleAutoJawab() {
+    cancelPendingJawab()
+    const needed = String(hasil(soalanRef.current)).length
+    if (inputRef.current.length < needed) return
+    autoJawabRef.current = window.setTimeout(() => {
+      autoJawabRef.current = null
+      jawab(inputRef.current)
+    }, AUTO_JAWAB_MS)
+  }
+
   function addDigit(digit: string) {
     if (lockedRef.current || (screen !== 'main' && screen !== 'ulang')) return
     if (inputRef.current.length >= 3) return
     const next = `${inputRef.current}${digit}`
     inputRef.current = next
     setInput(next)
-    const needed = String(hasil(soalanRef.current)).length
-    if (next.length >= needed) {
-      jawab(next)
-    }
+    scheduleAutoJawab()
   }
 
   function padam() {
     if (lockedRef.current) return
+    cancelPendingJawab()
+    inputRef.current = ''
+    setInput('')
+  }
+
+  function padamSatu() {
+    if (lockedRef.current) return
+    cancelPendingJawab()
     const next = inputRef.current.slice(0, -1)
     inputRef.current = next
     setInput(next)
+    scheduleAutoJawab()
   }
 
   function jawab(value: string) {
+    cancelPendingJawab()
     if (lockedRef.current) return
     if (!value) return
     const n = Number(value)
@@ -300,7 +347,7 @@ export default function App() {
     })
   }
 
-  keysRef.current = { addDigit, padam, jawab }
+  keysRef.current = { addDigit, padamSatu, jawab }
 
   function jawabUlang(n: number) {
     setLock(true)
@@ -342,11 +389,11 @@ export default function App() {
       <CartoonBackdrop />
       <div className="stage mx-auto flex min-h-svh w-full max-w-md flex-col px-4 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-1 flex items-center justify-end gap-2">
-        {screen === 'main' && (
+        {screen !== 'mula' && (
           <button
             type="button"
             data-testid="baru"
-            onClick={mula}
+            onClick={mulaBaru}
             className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
           >
             Baru
@@ -363,6 +410,8 @@ export default function App() {
           stats={stats}
           flash={flash}
           locked={locked}
+          cue={cue}
+          roundPulse={roundPulse}
           onDigit={addDigit}
           onPadam={padam}
           onJawab={() => jawab(inputRef.current)}
@@ -384,7 +433,11 @@ export default function App() {
         />
       )}
       {screen === 'markah' && (
-        <ScoreScreen stats={stats} stor={stor} onLagiSatu={mula} />
+        <ScoreScreen
+          stats={stats}
+          stor={stor}
+          onLagiSatu={() => mula({ announce: true })}
+        />
       )}
       </div>
     </div>
@@ -439,6 +492,8 @@ function PlayScreen({
   stats,
   flash,
   locked,
+  cue,
+  roundPulse,
   onDigit,
   onPadam,
   onJawab,
@@ -449,6 +504,8 @@ function PlayScreen({
   stats: Stats
   flash: Flash
   locked: boolean
+  cue: string | null
+  roundPulse: number
   onDigit: (digit: string) => void
   onPadam: () => void
   onJawab: () => void
@@ -464,8 +521,9 @@ function PlayScreen({
           <p className="text-xs font-semibold text-cream/80">Soalan · Jawab · Lagi</p>
         </div>
         <div
+          key={roundPulse}
           data-testid="timer"
-          className={`ink wonky-orb grid h-[88px] w-[88px] place-items-center bg-cream text-center ${low ? 'tick-low bg-bad text-cream' : ''}`}
+          className={`ink wonky-orb grid h-[88px] w-[88px] place-items-center bg-cream text-center ${low ? 'tick-low bg-bad text-cream' : ''} ${roundPulse > 0 ? 'pop' : ''}`}
         >
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest">Masa</p>
@@ -476,9 +534,15 @@ function PlayScreen({
         </div>
       </header>
 
-      <QuestionCard soalan={soalan} input={input} flash={flash} />
+      <QuestionCard
+        soalan={soalan}
+        input={input}
+        flash={flash}
+        pulseKey={roundPulse}
+        cue={cue}
+      />
 
-      <div className="mb-4 grid grid-cols-2 gap-2">
+      <div key={roundPulse} className="mb-4 grid grid-cols-2 gap-2">
         <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
         <StatPill
           label="Streak"
@@ -635,10 +699,14 @@ function QuestionCard({
   soalan,
   input,
   flash,
+  pulseKey = 0,
+  cue = null,
 }: {
   soalan: Soalan
   input: string
   flash: Flash
+  pulseKey?: number
+  cue?: string | null
 }) {
   const fill =
     flash === 'betul' ? 'bg-ok' : flash === 'salah' ? 'bg-bad' : 'bg-cream'
@@ -650,9 +718,17 @@ function QuestionCard({
       data-b={soalan.b}
       className={`ink-thick wonky relative my-5 flex flex-1 flex-col items-center justify-center px-4 py-6 text-center ${fill}`}
     >
+      {cue && (
+        <p
+          data-testid="pusingan-baru"
+          className="cue-pop ink-thick wonky-sm absolute left-3 right-3 top-3 z-10 bg-gold px-3 py-2.5 text-lg font-bold leading-tight"
+        >
+          {cue}
+        </p>
+      )}
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
       <p
-        key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
+        key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}-${pulseKey}`}
         className="pop text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl"
       >
         {soalan.a} <span className="text-pink">×</span> {soalan.b}

@@ -1,3 +1,5 @@
+import type { PointerEvent } from 'react'
+
 type NumberPadProps = {
   disabled?: boolean
   onDigit: (digit: string) => void
@@ -67,15 +69,25 @@ function PadButton({
         ? 'bg-pink'
         : 'bg-butter'
 
+  function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
+    if (disabled) return
+    // Mouse keeps click-on-release (can cancel by dragging off). Touch fires
+    // on press so :active movement cannot swallow the tap.
+    if (event.pointerType === 'mouse') return
+    event.preventDefault()
+    onClick()
+  }
+
   return (
     <button
       type="button"
       disabled={disabled}
+      onPointerDown={handlePointerDown}
       onClick={onClick}
       data-testid={label === 'Jawab' ? 'jawab' : label === 'Padam' ? 'padam' : `digit-${label}`}
       className={`press ink wonky-sm min-h-14 text-xl font-bold tracking-wide text-ink touch-manipulation disabled:opacity-40 disabled:shadow-none ${toneClass} ${wobble === 'l' ? 'tilt-l' : wobble === 'r' ? 'tilt-r' : ''}`}
     >
-      {label}
+      <span className="pad-face pointer-events-none">{label}</span>
     </button>
   )
 }

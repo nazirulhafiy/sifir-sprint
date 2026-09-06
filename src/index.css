@@ -112,12 +112,20 @@ body {
 }
 
 .press {
-  transition: transform 80ms ease, box-shadow 80ms ease;
+  transition: box-shadow 80ms ease;
+}
+
+.press .pad-face {
+  display: block;
+  transition: transform 80ms ease;
 }
 
 .press:active:not(:disabled) {
-  transform: translate(2px, 3px);
   box-shadow: 1px 1px 0 #141414;
+}
+
+.press:active:not(:disabled) .pad-face {
+  transform: translate(2px, 3px);
 }
 
 .tilt-l {
@@ -161,6 +169,25 @@ body {
 
 .pop {
   animation: pop-in 180ms ease-out;
+}
+
+@keyframes cue-pop {
+  0% {
+    transform: scale(0.86) rotate(-3deg);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.05) rotate(1.4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-0.4deg);
+    opacity: 1;
+  }
+}
+
+.cue-pop {
+  animation: cue-pop 280ms ease-out both;
 }
 
 .tick-low {
