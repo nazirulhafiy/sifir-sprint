@@ -1,4 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import {
+  bunyiBetul,
+  bunyiSalah,
+  hidupkanAudio,
+  muatBisu,
+  tetapkanBisu,
+} from './audio.ts'
 import { CartoonBackdrop } from './CartoonBits.tsx'
 import {
   formatMasa,
@@ -8,6 +15,7 @@ import {
   mata,
   type Soalan,
 } from './game.ts'
+import { MuteToggle } from './MuteToggle.tsx'
 import { NumberPad } from './NumberPad.tsx'
 import { muatStor, simpanPusingan, type Stor } from './storage.ts'
 
@@ -44,6 +52,7 @@ export default function App() {
   const [reveal, setReveal] = useState<number | null>(null)
   const [stor, setStor] = useState<Stor>(() => muatStor())
   const [roundId, setRoundId] = useState(0)
+  const [bisu, setBisu] = useState(() => muatBisu())
 
   const statsRef = useRef(stats)
   const soalanRef = useRef(soalan)
@@ -134,7 +143,14 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [screen])
 
+  function tukarBisu() {
+    const next = !bisu
+    setBisu(next)
+    tetapkanBisu(next)
+  }
+
   function mula() {
+    if (!bisu) void hidupkanAudio()
     bumpTick()
     savedRef.current = false
     const next = emptyStats()
@@ -243,6 +259,7 @@ export default function App() {
       }
       applyStats(next)
       setFlash('betul')
+      bunyiBetul()
       afterTick(280, () => {
         const q = janaSoalan(streak, current)
         soalanRef.current = q
@@ -263,6 +280,7 @@ export default function App() {
     }
     applyStats(next)
     setFlash('salah')
+    bunyiSalah()
     afterTick(380, () => {
       const q = janaSoalan(0, current)
       soalanRef.current = q
@@ -282,10 +300,12 @@ export default function App() {
     const answer = hasil(current)
     if (n === answer) {
       setFlash('betul')
+      bunyiBetul()
       afterTick(320, () => nextReplay())
       return
     }
     setFlash('salah')
+    bunyiSalah()
     setReveal(answer)
     afterTick(2200, () => nextReplay())
   }
@@ -313,6 +333,9 @@ export default function App() {
     <div className="sky-stage">
       <CartoonBackdrop />
       <div className="stage mx-auto flex min-h-svh w-full max-w-md flex-col px-4 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
+      <div className="mb-1 flex justify-end">
+        <MuteToggle bisu={bisu} onToggle={tukarBisu} />
+      </div>
       {screen === 'mula' && <MulaScreen terbaik={stor.terbaik} onMula={mula} />}
       {screen === 'main' && (
         <PlayScreen
