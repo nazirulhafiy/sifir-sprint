@@ -195,7 +195,7 @@ export default function App() {
     if (opts?.announce) {
       setRoundPulse((n) => n + 1)
       setCue('Pusingan baru!')
-      afterTick(1600, () => setCue(null))
+      afterTick(2400, () => setCue(null))
     } else {
       setCue(null)
     }
@@ -527,16 +527,13 @@ function PlayScreen({
         </div>
       </header>
 
-      {cue && (
-        <p
-          data-testid="pusingan-baru"
-          className="cue-pop ink wonky-sm mt-3 bg-gold px-3 py-2 text-center text-sm font-bold"
-        >
-          {cue}
-        </p>
-      )}
-
-      <QuestionCard soalan={soalan} input={input} flash={flash} pulseKey={roundPulse} />
+      <QuestionCard
+        soalan={soalan}
+        input={input}
+        flash={flash}
+        pulseKey={roundPulse}
+        cue={cue}
+      />
 
       <div key={roundPulse} className="mb-4 grid grid-cols-2 gap-2">
         <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
@@ -696,11 +693,13 @@ function QuestionCard({
   input,
   flash,
   pulseKey = 0,
+  cue = null,
 }: {
   soalan: Soalan
   input: string
   flash: Flash
   pulseKey?: number
+  cue?: string | null
 }) {
   const fill =
     flash === 'betul' ? 'bg-ok' : flash === 'salah' ? 'bg-bad' : 'bg-cream'
@@ -712,6 +711,14 @@ function QuestionCard({
       data-b={soalan.b}
       className={`ink-thick wonky relative my-5 flex flex-1 flex-col items-center justify-center px-4 py-6 text-center ${fill}`}
     >
+      {cue && (
+        <p
+          data-testid="pusingan-baru"
+          className="cue-pop ink-thick wonky-sm absolute left-3 right-3 top-3 z-10 bg-gold px-3 py-2.5 text-lg font-bold leading-tight"
+        >
+          {cue}
+        </p>
+      )}
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
       <p
         key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}-${pulseKey}`}

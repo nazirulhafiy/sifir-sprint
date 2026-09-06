@@ -187,7 +187,7 @@ body {
 }
 
 .cue-pop {
-  animation: cue-pop 280ms ease-out;
+  animation: cue-pop 280ms ease-out both;
 }
 
 .tick-low {
