@@ -149,6 +149,20 @@ export default function App() {
     tetapkanBisu(next)
   }
 
+  function persistRound() {
+    if (savedRef.current) return
+    const latest = statsRef.current
+    setStor(
+      simpanPusingan({
+        markah: latest.markah,
+        betul: latest.betul,
+        salah: latest.salah,
+        masa: Date.now(),
+      }),
+    )
+    savedRef.current = true
+  }
+
   function mula() {
     if (!bisu) void hidupkanAudio()
     bumpTick()
@@ -169,6 +183,11 @@ export default function App() {
     setReveal(null)
     setRoundId((n) => n + 1)
     setScreen('main')
+  }
+
+  function mulaSemula() {
+    persistRound()
+    mula()
   }
 
   function endPlay() {
@@ -192,18 +211,7 @@ export default function App() {
   }
 
   function keMarkah() {
-    if (!savedRef.current) {
-      const latest = statsRef.current
-      setStor(
-        simpanPusingan({
-          markah: latest.markah,
-          betul: latest.betul,
-          salah: latest.salah,
-          masa: Date.now(),
-        }),
-      )
-      savedRef.current = true
-    }
+    persistRound()
     setScreen('markah')
   }
 
@@ -333,7 +341,17 @@ export default function App() {
     <div className="sky-stage">
       <CartoonBackdrop />
       <div className="stage mx-auto flex min-h-svh w-full max-w-md flex-col px-4 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
-      <div className="mb-1 flex justify-end">
+      <div className="mb-1 flex items-center justify-end gap-2">
+        {screen === 'main' && (
+          <button
+            type="button"
+            data-testid="baru"
+            onClick={mula}
+            className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
+          >
+            Baru
+          </button>
+        )}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
       </div>
       {screen === 'mula' && <MulaScreen terbaik={stor.terbaik} onMula={mula} />}
@@ -362,10 +380,11 @@ export default function App() {
           onDigit={addDigit}
           onPadam={padam}
           onJawab={() => jawab(inputRef.current)}
+          onMulaSemula={mulaSemula}
         />
       )}
       {screen === 'markah' && (
-        <ScoreScreen stats={stats} stor={stor} onLagi={mula} />
+        <ScoreScreen stats={stats} stor={stor} onLagiSatu={mula} />
       )}
       </div>
     </div>
@@ -489,6 +508,7 @@ function ReplayScreen({
   onDigit,
   onPadam,
   onJawab,
+  onMulaSemula,
 }: {
   soalan: Soalan
   input: string
@@ -500,6 +520,7 @@ function ReplayScreen({
   onDigit: (digit: string) => void
   onPadam: () => void
   onJawab: () => void
+  onMulaSemula: () => void
 }) {
   return (
     <div className="flex flex-1 flex-col">
@@ -510,6 +531,7 @@ function ReplayScreen({
         <p className="text-sm font-semibold" data-testid="replay-progress">
           Ulang soalan tersalah · {index + 1} / {total}
         </p>
+        <p className="mt-1 text-xs font-semibold">Lepas ni: Markah</p>
       </header>
 
       <QuestionCard soalan={soalan} input={input} flash={flash} />
@@ -534,6 +556,15 @@ function ReplayScreen({
         onPadam={onPadam}
         onJawab={onJawab}
       />
+
+      <button
+        type="button"
+        data-testid="mula-semula"
+        onClick={onMulaSemula}
+        className="press ink wonky mt-4 w-full bg-cream py-3 text-base font-bold touch-manipulation"
+      >
+        Mula Semula
+      </button>
     </div>
   )
 }
@@ -541,11 +572,11 @@ function ReplayScreen({
 function ScoreScreen({
   stats,
   stor,
-  onLagi,
+  onLagiSatu,
 }: {
   stats: Stats
   stor: Stor
-  onLagi: () => void
+  onLagiSatu: () => void
 }) {
   const sempurna = stats.salah === 0 && stats.betul > 0
   return (
@@ -590,11 +621,11 @@ function ScoreScreen({
 
       <button
         type="button"
-        data-testid="lagi"
-        onClick={onLagi}
+        data-testid="lagi-satu"
+        onClick={onLagiSatu}
         className="press ink-thick wonky mt-6 w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
       >
-        Lagi
+        Lagi Satu
       </button>
     </div>
   )

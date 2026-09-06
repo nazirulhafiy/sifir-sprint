@@ -38,6 +38,8 @@ Optional short practice: `http://localhost:5173/sifir-sprint/?masa=15`
 
 Mute sits in the top-right. First visit starts muted; unmute (or Mula after unmute) starts the generated BGM loop. Preference is saved in `localStorage`.
 
+After 60s: **Belajar / Replay** (misses only) → **Markah**. **Mula Semula** / **Lagi Satu** starts a fresh round without a page reload. During play, **Baru** resets the current attempt.
+
 ## Ship
 
 - **GitHub Pages:** the `Deploy GitHub Pages` workflow builds `dist` and publishes `main` via `actions/deploy-pages`. In the repo settings, set Pages → Source to **GitHub Actions**.
