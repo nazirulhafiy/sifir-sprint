@@ -112,12 +112,20 @@ body {
 }
 
 .press {
-  transition: transform 80ms ease, box-shadow 80ms ease;
+  transition: box-shadow 80ms ease;
+}
+
+.press .pad-face {
+  display: block;
+  transition: transform 80ms ease;
 }
 
 .press:active:not(:disabled) {
-  transform: translate(2px, 3px);
   box-shadow: 1px 1px 0 #141414;
+}
+
+.press:active:not(:disabled) .pad-face {
+  transform: translate(2px, 3px);
 }
 
 .tilt-l {

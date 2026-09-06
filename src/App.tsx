@@ -40,6 +40,9 @@ const emptyStats = (): Stats => ({
   misses: [],
 })
 
+/** Grace window so Padam can clear a just-completed answer before auto-submit. */
+const AUTO_JAWAB_MS = 480
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('mula')
   const [seconds, setSeconds] = useState(60)
@@ -64,9 +67,10 @@ export default function App() {
   const tickRef = useRef(0)
   const keysRef = useRef({
     addDigit: (_digit: string) => {},
-    padam: () => {},
+    padamSatu: () => {},
     jawab: (_value: string) => {},
   })
+  const autoJawabRef = useRef<number | null>(null)
 
   function bumpTick() {
     tickRef.current += 1
@@ -102,6 +106,8 @@ export default function App() {
     secondsRef.current = seconds
   }, [seconds])
 
+  useEffect(() => () => cancelPendingJawab(), [])
+
   useEffect(() => {
     if (screen !== 'main') return
     const id = window.setInterval(() => {
@@ -131,7 +137,7 @@ export default function App() {
       }
       if (event.key === 'Backspace') {
         event.preventDefault()
-        keysRef.current.padam()
+        keysRef.current.padamSatu()
         return
       }
       if (event.key === 'Enter') {
@@ -166,6 +172,7 @@ export default function App() {
   function mula() {
     if (!bisu) void hidupkanAudio()
     bumpTick()
+    cancelPendingJawab()
     savedRef.current = false
     const next = emptyStats()
     statsRef.current = next
@@ -192,6 +199,7 @@ export default function App() {
 
   function endPlay() {
     bumpTick()
+    cancelPendingJawab()
     const latest = statsRef.current
     if (latest.misses.length > 0) {
       const firstMiss = latest.misses[0]
@@ -220,26 +228,49 @@ export default function App() {
     setStats(next)
   }
 
+  function cancelPendingJawab() {
+    if (autoJawabRef.current === null) return
+    window.clearTimeout(autoJawabRef.current)
+    autoJawabRef.current = null
+  }
+
+  function scheduleAutoJawab() {
+    cancelPendingJawab()
+    const needed = String(hasil(soalanRef.current)).length
+    if (inputRef.current.length < needed) return
+    autoJawabRef.current = window.setTimeout(() => {
+      autoJawabRef.current = null
+      jawab(inputRef.current)
+    }, AUTO_JAWAB_MS)
+  }
+
   function addDigit(digit: string) {
     if (lockedRef.current || (screen !== 'main' && screen !== 'ulang')) return
     if (inputRef.current.length >= 3) return
     const next = `${inputRef.current}${digit}`
     inputRef.current = next
     setInput(next)
-    const needed = String(hasil(soalanRef.current)).length
-    if (next.length >= needed) {
-      jawab(next)
-    }
+    scheduleAutoJawab()
   }
 
   function padam() {
     if (lockedRef.current) return
+    cancelPendingJawab()
+    inputRef.current = ''
+    setInput('')
+  }
+
+  function padamSatu() {
+    if (lockedRef.current) return
+    cancelPendingJawab()
     const next = inputRef.current.slice(0, -1)
     inputRef.current = next
     setInput(next)
+    scheduleAutoJawab()
   }
 
   function jawab(value: string) {
+    cancelPendingJawab()
     if (lockedRef.current) return
     if (!value) return
     const n = Number(value)
@@ -300,7 +331,7 @@ export default function App() {
     })
   }
 
-  keysRef.current = { addDigit, padam, jawab }
+  keysRef.current = { addDigit, padamSatu, jawab }
 
   function jawabUlang(n: number) {
     setLock(true)
