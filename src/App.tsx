@@ -41,7 +41,7 @@ const emptyStats = (): Stats => ({
 })
 
 /** Grace window so Padam can clear a just-completed answer before auto-submit. */
-const AUTO_JAWAB_MS = 480
+const AUTO_JAWAB_MS = 750
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('mula')
