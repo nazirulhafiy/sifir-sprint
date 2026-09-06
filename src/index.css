@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Bricolage Grotesk', ui-rounded, system-ui, sans-serif;
+  --color-navy: #070b16;
+  --color-navy-mid: #10182a;
+  --color-navy-card: #182236;
+  --color-gold: #f5c15d;
+  --color-gold-bright: #ffe08a;
+  --color-cream: #f4efe4;
+  --color-ok: #3ee0a2;
+  --color-bad: #ff6b7a;
+}
+
+html,
+body,
+#root {
+  min-height: 100svh;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--color-cream);
+  background:
+    radial-gradient(900px 420px at 50% -8%, rgba(245, 193, 93, 0.16), transparent 55%),
+    radial-gradient(700px 360px at 110% 110%, rgba(62, 96, 180, 0.22), transparent 50%),
+    var(--color-navy);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.92);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-low {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.pop {
+  animation: pop-in 160ms ease-out;
+}
+
+.tick-low {
+  animation: pulse-low 700ms ease-in-out infinite;
+}
