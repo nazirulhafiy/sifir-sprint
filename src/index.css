@@ -171,6 +171,25 @@ body {
   animation: pop-in 180ms ease-out;
 }
 
+@keyframes cue-pop {
+  0% {
+    transform: scale(0.86) rotate(-3deg);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.05) rotate(1.4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-0.4deg);
+    opacity: 1;
+  }
+}
+
+.cue-pop {
+  animation: cue-pop 280ms ease-out;
+}
+
 .tick-low {
   animation: pulse-low 700ms ease-in-out infinite;
 }

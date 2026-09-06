@@ -56,6 +56,8 @@ export default function App() {
   const [stor, setStor] = useState<Stor>(() => muatStor())
   const [roundId, setRoundId] = useState(0)
   const [bisu, setBisu] = useState(() => muatBisu())
+  const [cue, setCue] = useState<string | null>(null)
+  const [roundPulse, setRoundPulse] = useState(0)
 
   const statsRef = useRef(stats)
   const soalanRef = useRef(soalan)
@@ -169,7 +171,7 @@ export default function App() {
     savedRef.current = true
   }
 
-  function mula() {
+  function mula(opts?: { announce?: boolean }) {
     if (!bisu) void hidupkanAudio()
     bumpTick()
     cancelPendingJawab()
@@ -190,11 +192,18 @@ export default function App() {
     setReveal(null)
     setRoundId((n) => n + 1)
     setScreen('main')
+    if (opts?.announce) {
+      setRoundPulse((n) => n + 1)
+      setCue('Pusingan baru!')
+      afterTick(1600, () => setCue(null))
+    } else {
+      setCue(null)
+    }
   }
 
   function mulaSemula() {
     persistRound()
-    mula()
+    mula({ announce: true })
   }
 
   function endPlay() {
@@ -377,7 +386,7 @@ export default function App() {
           <button
             type="button"
             data-testid="baru"
-            onClick={mula}
+            onClick={() => mula({ announce: true })}
             className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
           >
             Baru
@@ -394,6 +403,8 @@ export default function App() {
           stats={stats}
           flash={flash}
           locked={locked}
+          cue={cue}
+          roundPulse={roundPulse}
           onDigit={addDigit}
           onPadam={padam}
           onJawab={() => jawab(inputRef.current)}
@@ -415,7 +426,11 @@ export default function App() {
         />
       )}
       {screen === 'markah' && (
-        <ScoreScreen stats={stats} stor={stor} onLagiSatu={mula} />
+        <ScoreScreen
+          stats={stats}
+          stor={stor}
+          onLagiSatu={() => mula({ announce: true })}
+        />
       )}
       </div>
     </div>
@@ -470,6 +485,8 @@ function PlayScreen({
   stats,
   flash,
   locked,
+  cue,
+  roundPulse,
   onDigit,
   onPadam,
   onJawab,
@@ -480,6 +497,8 @@ function PlayScreen({
   stats: Stats
   flash: Flash
   locked: boolean
+  cue: string | null
+  roundPulse: number
   onDigit: (digit: string) => void
   onPadam: () => void
   onJawab: () => void
@@ -495,8 +514,9 @@ function PlayScreen({
           <p className="text-xs font-semibold text-cream/80">Soalan · Jawab · Lagi</p>
         </div>
         <div
+          key={roundPulse}
           data-testid="timer"
-          className={`ink wonky-orb grid h-[88px] w-[88px] place-items-center bg-cream text-center ${low ? 'tick-low bg-bad text-cream' : ''}`}
+          className={`ink wonky-orb grid h-[88px] w-[88px] place-items-center bg-cream text-center ${low ? 'tick-low bg-bad text-cream' : ''} ${roundPulse > 0 ? 'pop' : ''}`}
         >
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest">Masa</p>
@@ -507,9 +527,18 @@ function PlayScreen({
         </div>
       </header>
 
-      <QuestionCard soalan={soalan} input={input} flash={flash} />
+      {cue && (
+        <p
+          data-testid="pusingan-baru"
+          className="cue-pop ink wonky-sm mt-3 bg-gold px-3 py-2 text-center text-sm font-bold"
+        >
+          {cue}
+        </p>
+      )}
 
-      <div className="mb-4 grid grid-cols-2 gap-2">
+      <QuestionCard soalan={soalan} input={input} flash={flash} pulseKey={roundPulse} />
+
+      <div key={roundPulse} className="mb-4 grid grid-cols-2 gap-2">
         <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
         <StatPill
           label="Streak"
@@ -666,10 +695,12 @@ function QuestionCard({
   soalan,
   input,
   flash,
+  pulseKey = 0,
 }: {
   soalan: Soalan
   input: string
   flash: Flash
+  pulseKey?: number
 }) {
   const fill =
     flash === 'betul' ? 'bg-ok' : flash === 'salah' ? 'bg-bad' : 'bg-cream'
@@ -683,7 +714,7 @@ function QuestionCard({
     >
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
       <p
-        key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
+        key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}-${pulseKey}`}
         className="pop text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl"
       >
         {soalan.a} <span className="text-pink">×</span> {soalan.b}
