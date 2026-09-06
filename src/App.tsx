@@ -50,11 +50,32 @@ export default function App() {
   const savedRef = useRef(false)
   const inputRef = useRef(input)
   const secondsRef = useRef(seconds)
+  const lockedRef = useRef(false)
+  const replayIndexRef = useRef(0)
+  const tickRef = useRef(0)
   const keysRef = useRef({
     addDigit: (_digit: string) => {},
     padam: () => {},
     jawab: (_value: string) => {},
   })
+
+  function bumpTick() {
+    tickRef.current += 1
+    return tickRef.current
+  }
+
+  function afterTick(ms: number, fn: () => void) {
+    const tick = tickRef.current
+    window.setTimeout(() => {
+      if (tickRef.current !== tick) return
+      fn()
+    }, ms)
+  }
+
+  function setLock(next: boolean) {
+    lockedRef.current = next
+    setLocked(next)
+  }
 
   useEffect(() => {
     statsRef.current = stats
@@ -79,9 +100,10 @@ export default function App() {
       if (next <= 0) {
         secondsRef.current = 0
         setSeconds(0)
-        setLocked(true)
+        setLock(true)
         window.clearInterval(id)
-        window.setTimeout(() => endPlay(), 280)
+        bumpTick()
+        afterTick(280, () => endPlay())
         return
       }
       secondsRef.current = next
@@ -113,18 +135,20 @@ export default function App() {
   }, [screen])
 
   function mula() {
+    bumpTick()
     savedRef.current = false
     const next = emptyStats()
     statsRef.current = next
     const first = janaSoalan(0)
     soalanRef.current = first
+    replayIndexRef.current = 0
     setStats(next)
     setSoalan(first)
     setInput('')
     inputRef.current = ''
     setSeconds(getMasaSaat())
     setFlash(null)
-    setLocked(false)
+    setLock(false)
     setReplayIndex(0)
     setReveal(null)
     setRoundId((n) => n + 1)
@@ -132,17 +156,19 @@ export default function App() {
   }
 
   function endPlay() {
+    bumpTick()
     const latest = statsRef.current
     if (latest.misses.length > 0) {
       const firstMiss = latest.misses[0]
       soalanRef.current = firstMiss
+      replayIndexRef.current = 0
       setSoalan(firstMiss)
       setReplayIndex(0)
       setInput('')
       inputRef.current = ''
       setFlash(null)
       setReveal(null)
-      setLocked(false)
+      setLock(false)
       setScreen('ulang')
       return
     }
@@ -171,7 +197,7 @@ export default function App() {
   }
 
   function addDigit(digit: string) {
-    if (locked || (screen !== 'main' && screen !== 'ulang')) return
+    if (lockedRef.current || (screen !== 'main' && screen !== 'ulang')) return
     if (inputRef.current.length >= 3) return
     const next = `${inputRef.current}${digit}`
     inputRef.current = next
@@ -183,14 +209,14 @@ export default function App() {
   }
 
   function padam() {
-    if (locked) return
+    if (lockedRef.current) return
     const next = inputRef.current.slice(0, -1)
     inputRef.current = next
     setInput(next)
   }
 
   function jawab(value: string) {
-    if (locked) return
+    if (lockedRef.current) return
     if (!value) return
     const n = Number(value)
     if (!Number.isFinite(n)) return
@@ -201,7 +227,7 @@ export default function App() {
     }
     if (screen !== 'main' || secondsRef.current <= 0) return
 
-    setLocked(true)
+    setLock(true)
     const current = soalanRef.current
     const betulJawab = n === hasil(current)
     const prev = statsRef.current
@@ -217,15 +243,15 @@ export default function App() {
       }
       applyStats(next)
       setFlash('betul')
-      window.setTimeout(() => {
+      afterTick(280, () => {
         const q = janaSoalan(streak, current)
         soalanRef.current = q
         setSoalan(q)
         inputRef.current = ''
         setInput('')
         setFlash(null)
-        setLocked(false)
-      }, 200)
+        setLock(false)
+      })
       return
     }
 
@@ -237,49 +263,50 @@ export default function App() {
     }
     applyStats(next)
     setFlash('salah')
-    window.setTimeout(() => {
+    afterTick(380, () => {
       const q = janaSoalan(0, current)
       soalanRef.current = q
       setSoalan(q)
       inputRef.current = ''
       setInput('')
       setFlash(null)
-      setLocked(false)
-    }, 260)
+      setLock(false)
+    })
   }
 
   keysRef.current = { addDigit, padam, jawab }
 
   function jawabUlang(n: number) {
-    setLocked(true)
+    setLock(true)
     const current = soalanRef.current
     const answer = hasil(current)
     if (n === answer) {
       setFlash('betul')
-      window.setTimeout(() => nextReplay(), 240)
+      afterTick(320, () => nextReplay())
       return
     }
     setFlash('salah')
     setReveal(answer)
-    window.setTimeout(() => nextReplay(), 1300)
+    afterTick(2200, () => nextReplay())
   }
 
   function nextReplay() {
     const misses = statsRef.current.misses
-    const nextIndex = replayIndex + 1
+    const nextIndex = replayIndexRef.current + 1
     if (nextIndex >= misses.length) {
       keMarkah()
       return
     }
     const q = misses[nextIndex]
     soalanRef.current = q
+    replayIndexRef.current = nextIndex
     setSoalan(q)
     setReplayIndex(nextIndex)
     inputRef.current = ''
     setInput('')
     setReveal(null)
     setFlash(null)
-    setLocked(false)
+    setLock(false)
   }
 
   return (
@@ -341,7 +368,7 @@ function MulaScreen({
         Soalan → jawab → markah → streak → lagi satu.
       </p>
       <div className="ink wonky mt-8 bg-cream px-6 py-5">
-        <p className="text-4xl font-bold tabular text-ink">60s</p>
+        <p className="text-4xl font-bold tabular text-ink">{getMasaSaat()}s</p>
         <p className="mt-1 text-sm font-semibold">Jadual darab 1–12</p>
         {terbaik > 0 && (
           <p className="mt-3 text-xs font-bold uppercase tracking-widest">
@@ -462,13 +489,15 @@ function ReplayScreen({
 
       <QuestionCard soalan={soalan} input={input} flash={flash} />
 
-      <div className="ink wonky mb-4 min-h-12 bg-cream px-4 py-3 text-center">
+      <div
+        className={`ink wonky mb-4 min-h-16 px-4 py-3 text-center ${reveal === null ? 'bg-cream' : 'bg-butter'}`}
+      >
         {reveal === null ? (
           <p className="text-sm font-semibold">
             Jawab semula. Kalau tersalah, jawapan betul dipaparkan.
           </p>
         ) : (
-          <p className="text-lg font-bold" data-testid="jawapan-betul">
+          <p className="text-xl font-bold" data-testid="jawapan-betul">
             Jawapan: {soalan.a} × {soalan.b} = {reveal}
           </p>
         )}
