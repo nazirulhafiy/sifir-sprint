@@ -361,8 +361,10 @@ function MulaScreen({
       <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cream">
         KrackedDevs · Sekolah
       </p>
-      <h1 className="ink-thick wonky tilt-l bg-butter px-5 py-3 text-4xl font-bold leading-none tracking-tight text-ink sm:text-5xl">
-        Sifir Sprint
+      <h1 className="ink-thick wonky w-full bg-butter px-4 py-6 text-6xl font-bold leading-[0.9] tracking-tight text-ink sm:text-7xl">
+        Sifir
+        <br />
+        Sprint
       </h1>
       <p className="mt-5 max-w-xs text-base font-semibold leading-relaxed text-navy">
         Soalan → jawab → markah → streak → lagi satu.
