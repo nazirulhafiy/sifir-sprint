@@ -8,9 +8,7 @@ A 60-second jadual darab sprint. Questions are generated on the fly (1–12 × 1
 
 ## Play
 
-Open **https://hafiy.my/sifir-sprint/**
-
-Until the custom domain path resolves, also: **https://nazirulhafiy.github.io/sifir-sprint/**
+Open **https://polah.app/sifir-sprint/**
 
 ## Run locally
 
@@ -42,5 +40,9 @@ After 60s: **Belajar / Replay** (misses only) → **Markah**. **Mula Semula** / 
 
 ## Ship
 
+Public URL is only **https://polah.app/sifir-sprint/** (Cloudflare proxies `/sifir-sprint/`; origin can stay GitHub Pages). Vite `base` stays `/sifir-sprint/`.
+
+Old hosts (`hafiy.my`, `nazirulhafiy.github.io`) client-redirect to polah.app and keep the path/query/hash.
+
 - **GitHub Pages:** the `Deploy GitHub Pages` workflow builds `dist` and publishes `main` via `actions/deploy-pages`. In the repo settings, set Pages → Source to **GitHub Actions**.
-- **Vercel:** import the repo (Vite + `vercel.json`). Note the app is served under `/sifir-sprint/`.
+- **Vercel:** import the repo (Vite + `vercel.json`). The app is served under `/sifir-sprint/`.
