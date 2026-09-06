@@ -15,12 +15,13 @@ export function NumberPad({
 }: NumberPadProps) {
   return (
     <div className="grid grid-cols-3 gap-2.5">
-      {digits.map((digit) => (
+      {digits.map((digit, i) => (
         <PadButton
           key={digit}
           disabled={disabled}
           onClick={() => onDigit(digit)}
           label={digit}
+          wobble={i % 3 === 0 ? 'l' : i % 3 === 2 ? 'r' : undefined}
         />
       ))}
       <PadButton
@@ -48,6 +49,7 @@ type PadButtonProps = {
   label: string
   disabled?: boolean
   tone?: 'default' | 'muted' | 'gold'
+  wobble?: 'l' | 'r'
   onClick: () => void
 }
 
@@ -55,21 +57,23 @@ function PadButton({
   label,
   disabled,
   tone = 'default',
+  wobble,
   onClick,
 }: PadButtonProps) {
   const toneClass =
     tone === 'gold'
-      ? 'bg-gold text-navy shadow-[0_6px_0_#9a6f1c] active:translate-y-0.5 active:shadow-[0_3px_0_#9a6f1c]'
+      ? 'bg-gold'
       : tone === 'muted'
-        ? 'bg-navy-card text-cream/70 border border-white/8 shadow-[0_5px_0_#0a1020] active:translate-y-0.5 active:shadow-[0_2px_0_#0a1020]'
-        : 'bg-[#1a2438] text-cream border border-white/8 shadow-[0_5px_0_#0a1020] active:translate-y-0.5 active:shadow-[0_2px_0_#0a1020]'
+        ? 'bg-pink'
+        : 'bg-butter'
 
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`min-h-14 rounded-2xl text-xl font-extrabold tracking-wide touch-manipulation transition disabled:opacity-40 disabled:shadow-none ${toneClass}`}
+      data-testid={label === 'Jawab' ? 'jawab' : label === 'Padam' ? 'padam' : `digit-${label}`}
+      className={`press ink wonky-sm min-h-14 text-xl font-bold tracking-wide text-ink touch-manipulation disabled:opacity-40 disabled:shadow-none ${toneClass} ${wobble === 'l' ? 'tilt-l' : wobble === 'r' ? 'tilt-r' : ''}`}
     >
       {label}
     </button>
