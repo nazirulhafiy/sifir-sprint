@@ -31,12 +31,13 @@ Optional short practice: `http://localhost:5173/sifir-sprint/?masa=15`
 ## Screens
 
 1. **Play** — big 60s timer, soalan, number pad, live markah + streak
-2. **Belajar / Replay** — only the misses; jawapan betul shown on a miss
-3. **Markah** — this round, best, last five rounds (`localStorage`)
+2. **Masa tamat** — short closure beat with this-round markah + betul · salah; tap or ~1.5s then continue
+3. **Belajar / Replay** — only the misses; jawapan betul shown on a miss
+4. **Markah** — this round, best, last five rounds (`localStorage`)
 
 Mute sits in the top-right. First visit starts with sound on; the first **Mula** tap (or a pad/key) unlocks audio and starts the BGM loop when mute is off. Preference is saved in `localStorage`.
 
-After 60s: **Belajar / Replay** (misses only) → **Markah**. **Mula Semula** / **Lagi Satu** starts a fresh round without a page reload. **Baru** (play, Belajar, or Markah) leaves the round and returns to the title screen — press **Mula** for a fresh race.
+After 60s: **Masa tamat!** → **Belajar / Replay** (misses only) → **Markah**. **Mula Semula** / **Lagi Satu** starts a fresh round without a page reload. **Baru** (play, Belajar, Masa tamat, or Markah) leaves the round and returns to the title screen — press **Mula** for a fresh race.
 
 ## Ship
 
