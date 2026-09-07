@@ -22,7 +22,7 @@ import { NumberPad } from './NumberPad.tsx'
 import { usePress } from './press.ts'
 import { muatStor, simpanPusingan, type Stor } from './storage.ts'
 
-type Screen = 'mula' | 'main' | 'tamat' | 'ulang' | 'markah'
+type Screen = 'mula' | 'main' | 'tamat' | 'markah'
 type Flash = 'betul' | 'salah' | null
 
 type Stats = {
@@ -31,7 +31,6 @@ type Stats = {
   streakTerbaik: number
   betul: number
   salah: number
-  misses: Soalan[]
 }
 
 const emptyStats = (): Stats => ({
@@ -40,12 +39,11 @@ const emptyStats = (): Stats => ({
   streakTerbaik: 0,
   betul: 0,
   salah: 0,
-  misses: [],
 })
 
 /** Grace window so Padam can clear a just-completed answer before auto-submit. */
 const AUTO_JAWAB_MS = 750
-/** Closure beat after the race before Belajar / Markah. */
+/** Closure beat after the race before Markah. */
 const TAMAT_MS = 1500
 
 export default function App() {
@@ -56,8 +54,6 @@ export default function App() {
   const [stats, setStats] = useState<Stats>(emptyStats)
   const [flash, setFlash] = useState<Flash>(null)
   const [locked, setLocked] = useState(false)
-  const [replayIndex, setReplayIndex] = useState(0)
-  const [reveal, setReveal] = useState<number | null>(null)
   const [stor, setStor] = useState<Stor>(() => muatStor())
   const [roundId, setRoundId] = useState(0)
   const [bisu, setBisu] = useState(() => muatBisu())
@@ -71,7 +67,6 @@ export default function App() {
   const inputRef = useRef(input)
   const secondsRef = useRef(seconds)
   const lockedRef = useRef(false)
-  const replayIndexRef = useRef(0)
   const screenRef = useRef(screen)
   const closingTamatRef = useRef(false)
   const tickRef = useRef(0)
@@ -170,7 +165,7 @@ export default function App() {
         }
         return
       }
-      if (screen !== 'main' && screen !== 'ulang') return
+      if (screen !== 'main') return
       if (event.key >= '0' && event.key <= '9') {
         event.preventDefault()
         keysRef.current.addDigit(event.key)
@@ -219,7 +214,6 @@ export default function App() {
     statsRef.current = next
     const first = janaSoalan(0)
     soalanRef.current = first
-    replayIndexRef.current = 0
     setStats(next)
     setSoalan(first)
     setInput('')
@@ -229,8 +223,6 @@ export default function App() {
     setSeconds(masa)
     setFlash(null)
     setLock(false)
-    setReplayIndex(0)
-    setReveal(null)
     setCue(null)
   }
 
@@ -246,13 +238,8 @@ export default function App() {
     }
   }
 
-  function mulaSemula() {
-    persistRound()
-    mula({ announce: true })
-  }
-
   function keMula() {
-    if (screen === 'ulang' || screen === 'markah' || screen === 'tamat') {
+    if (screen === 'markah' || screen === 'tamat') {
       persistRound()
     }
     resetRoundState()
@@ -264,27 +251,8 @@ export default function App() {
     if (closingTamatRef.current) return
     if (screenRef.current !== 'tamat') return
     closingTamatRef.current = true
-    endPlay()
-  }
-
-  function endPlay() {
     bumpTick()
     cancelPendingJawab()
-    const latest = statsRef.current
-    if (latest.misses.length > 0) {
-      const firstMiss = latest.misses[0]
-      soalanRef.current = firstMiss
-      replayIndexRef.current = 0
-      setSoalan(firstMiss)
-      setReplayIndex(0)
-      setInput('')
-      inputRef.current = ''
-      setFlash(null)
-      setReveal(null)
-      setLock(false)
-      setScreen('ulang')
-      return
-    }
     keMarkah()
   }
 
@@ -316,7 +284,7 @@ export default function App() {
 
   function addDigit(digit: string) {
     void hidupkanAudio()
-    if (lockedRef.current || (screen !== 'main' && screen !== 'ulang')) return
+    if (lockedRef.current || screen !== 'main') return
     if (inputRef.current.length >= 3) return
     const next = `${inputRef.current}${digit}`
     inputRef.current = next
@@ -347,10 +315,6 @@ export default function App() {
     const n = Number(value)
     if (!Number.isFinite(n)) return
 
-    if (screen === 'ulang') {
-      jawabUlang(n)
-      return
-    }
     if (screen !== 'main' || secondsRef.current <= 0) return
 
     setLock(true)
@@ -386,7 +350,6 @@ export default function App() {
       ...prev,
       streak: 0,
       salah: prev.salah + 1,
-      misses: [...prev.misses, current],
     }
     applyStats(next)
     setFlash('salah')
@@ -403,41 +366,6 @@ export default function App() {
   }
 
   keysRef.current = { addDigit, padamSatu, jawab }
-
-  function jawabUlang(n: number) {
-    setLock(true)
-    const current = soalanRef.current
-    const answer = hasil(current)
-    if (n === answer) {
-      setFlash('betul')
-      bunyiBetul()
-      afterTick(320, () => nextReplay())
-      return
-    }
-    setFlash('salah')
-    bunyiSalah()
-    setReveal(answer)
-    afterTick(2200, () => nextReplay())
-  }
-
-  function nextReplay() {
-    const misses = statsRef.current.misses
-    const nextIndex = replayIndexRef.current + 1
-    if (nextIndex >= misses.length) {
-      keMarkah()
-      return
-    }
-    const q = misses[nextIndex]
-    soalanRef.current = q
-    replayIndexRef.current = nextIndex
-    setSoalan(q)
-    setReplayIndex(nextIndex)
-    inputRef.current = ''
-    setInput('')
-    setReveal(null)
-    setFlash(null)
-    setLock(false)
-  }
 
   return (
     <div className="sky-stage">
@@ -467,21 +395,6 @@ export default function App() {
       )}
       {screen === 'tamat' && (
         <TamatScreen stats={stats} onLanjut={lanjutSelepasTamat} />
-      )}
-      {screen === 'ulang' && (
-        <ReplayScreen
-          soalan={soalan}
-          input={input}
-          flash={flash}
-          reveal={reveal}
-          index={replayIndex}
-          total={stats.misses.length}
-          locked={locked}
-          onDigit={addDigit}
-          onPadam={padam}
-          onJawab={() => jawab(inputRef.current)}
-          onMulaSemula={mulaSemula}
-        />
       )}
       {screen === 'markah' && (
         <ScoreScreen
@@ -616,13 +529,17 @@ function PlayScreen({
         <div
           key={roundPulse}
           data-testid="timer"
-          className={`ink wonky-orb grid h-[88px] w-[88px] place-items-center bg-cream text-center ${low ? 'tick-low bg-bad text-cream' : ''} ${roundPulse > 0 ? 'pop' : ''}`}
+          className={`wonky-orb relative h-[88px] w-[88px] shrink-0 ${low ? 'tick-low' : ''} ${roundPulse > 0 ? 'pop' : ''}`}
         >
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest">Masa</p>
-            <p className="text-4xl font-bold leading-none tabular">
-              {formatMasa(seconds)}
-            </p>
+          <div
+            className={`ink wonky-orb grid h-full w-full place-items-center overflow-hidden text-center ${low ? 'bg-bad text-cream' : 'bg-cream'}`}
+          >
+            <div className="px-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest">Masa</p>
+              <p className="text-4xl font-bold leading-none tabular">
+                {formatMasa(seconds)}
+              </p>
+            </div>
           </div>
         </div>
       </header>
@@ -715,80 +632,6 @@ function TamatScreen({
         <div className="board-foot board-rule w-full bg-gold py-4 text-xl font-bold text-ink">
           Ketik untuk teruskan
         </div>
-      </button>
-    </div>
-  )
-}
-
-function ReplayScreen({
-  soalan,
-  input,
-  flash,
-  reveal,
-  index,
-  total,
-  locked,
-  onDigit,
-  onPadam,
-  onJawab,
-  onMulaSemula,
-}: {
-  soalan: Soalan
-  input: string
-  flash: Flash
-  reveal: number | null
-  index: number
-  total: number
-  locked: boolean
-  onDigit: (digit: string) => void
-  onPadam: () => void
-  onJawab: () => void
-  onMulaSemula: () => void
-}) {
-  const press = usePress(onMulaSemula)
-  return (
-    <div className="flex flex-1 flex-col">
-      <header className="ink wonky-sm bg-pink px-3 py-2">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em]">
-          Belajar / Replay
-        </p>
-        <p className="text-sm font-semibold" data-testid="replay-progress">
-          Ulang soalan tersalah · {index + 1} / {total}
-        </p>
-        <p className="mt-1 text-xs font-semibold">Lepas ni: Markah</p>
-      </header>
-
-      <QuestionCard soalan={soalan} input={input} flash={flash} />
-
-      <div
-        className={`ink wonky mb-4 min-h-16 px-4 py-3 text-center ${reveal === null ? 'bg-cream' : 'bg-butter'}`}
-      >
-        {reveal === null ? (
-          <p className="text-sm font-semibold">
-            Jawab semula. Kalau tersalah, jawapan betul dipaparkan.
-          </p>
-        ) : (
-          <p className="text-xl font-bold" data-testid="jawapan-betul">
-            Jawapan: {soalan.a} × {soalan.b} = {reveal}
-          </p>
-        )}
-      </div>
-
-      <NumberPad
-        disabled={locked}
-        onDigit={onDigit}
-        onPadam={onPadam}
-        onJawab={onJawab}
-      />
-
-      <button
-        type="button"
-        data-testid="mula-semula"
-        onPointerDown={press.onPointerDown}
-        onClick={press.onClick}
-        className="press ink wonky mt-4 w-full bg-cream py-3 text-base font-bold touch-manipulation"
-      >
-        Mula Semula
       </button>
     </div>
   )
