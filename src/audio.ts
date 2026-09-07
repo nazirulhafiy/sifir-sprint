@@ -16,6 +16,7 @@ let nextStep = 0
 let stepIndex = 0
 let muted = muatBisu()
 let loopOn = false
+let unlocked = false
 
 export function muatBisu(): boolean {
   try {
@@ -57,6 +58,40 @@ function beep(
   osc.stop(when + dur + 0.02)
 }
 
+function isRunning(audio: AudioContext) {
+  return audio.state === 'running'
+}
+
+/** iOS / autoplay: a 1-sample source + resume() must run in the user-gesture turn. */
+function gestureUnlock(audio: AudioContext) {
+  try {
+    const buffer = audio.createBuffer(1, 1, audio.sampleRate)
+    const source = audio.createBufferSource()
+    source.buffer = buffer
+    source.connect(audio.destination)
+    source.start(0)
+  } catch {
+    /* ignore missing Web Audio bits */
+  }
+  if (!isRunning(audio)) void audio.resume()
+}
+
+function syncBgmGain(audio: AudioContext) {
+  if (!bgm) return
+  const t = audio.currentTime
+  bgm.gain.cancelScheduledValues(t)
+  bgm.gain.setValueAtTime(muted ? 0 : 1, t)
+}
+
+function onContextState() {
+  if (!ctx) return
+  if (!isRunning(ctx)) return
+  unlocked = true
+  if (muted) return
+  if (!loopOn) startLoop()
+  else schedule()
+}
+
 function ensure() {
   if (ctx) return ctx
   const AudioCtx =
@@ -65,6 +100,7 @@ function ensure() {
       .webkitAudioContext
   if (!AudioCtx) return null
   ctx = new AudioCtx()
+  ctx.addEventListener('statechange', onContextState)
   master = ctx.createGain()
   master.gain.value = 0.18
   master.connect(ctx.destination)
@@ -76,7 +112,9 @@ function ensure() {
 
 function schedule() {
   if (!ctx || !bgm || !loopOn) return
-  while (nextStep < ctx.currentTime + 0.35) {
+  if (nextStep < ctx.currentTime - 0.5) nextStep = ctx.currentTime
+  const horizon = ctx.currentTime + 0.35
+  while (nextStep < horizon) {
     const i = stepIndex % LEAD.length
     const when = nextStep
     beep(bgm, LEAD[i], when, 0.22, 'triangle', 0.085)
@@ -107,18 +145,28 @@ export async function hidupkanAudio() {
   muted = muatBisu()
   const audio = ensure()
   if (!audio) return
-  if (audio.state === 'suspended') {
-    try {
-      await audio.resume()
-    } catch {
-      return
-    }
-  }
-  if (bgm) {
-    bgm.gain.cancelScheduledValues(audio.currentTime)
-    bgm.gain.setValueAtTime(muted ? 0 : 1, audio.currentTime)
-  }
+  // Resume + silent buffer + first BGM notes must be synchronous in the
+  // tap/key turn. Awaiting resume() first leaves Safari/Chrome past the
+  // user-activation window, so Mula stayed silent until mute was toggled.
+  gestureUnlock(audio)
+  syncBgmGain(audio)
   if (!muted) startLoop()
+  if (isRunning(audio)) {
+    unlocked = true
+    return
+  }
+  try {
+    await audio.resume()
+  } catch {
+    return
+  }
+  if (!isRunning(audio)) return
+  unlocked = true
+  syncBgmGain(audio)
+  if (!muted) {
+    if (!loopOn) startLoop()
+    else schedule()
+  }
 }
 
 export function tetapkanBisu(next: boolean) {
@@ -128,6 +176,7 @@ export function tetapkanBisu(next: boolean) {
     if (!next) void hidupkanAudio()
     return
   }
+  if (!next) gestureUnlock(ctx)
   bgm.gain.cancelScheduledValues(ctx.currentTime)
   bgm.gain.setTargetAtTime(next ? 0 : 1, ctx.currentTime, 0.04)
   if (next) stopLoop()
@@ -137,7 +186,7 @@ export function tetapkanBisu(next: boolean) {
 export function bunyiBetul() {
   if (muted) return
   const audio = ensure()
-  if (!audio || !master || audio.state !== 'running') return
+  if (!audio || !master || !isRunning(audio)) return
   const t = audio.currentTime
   beep(master, 784, t, 0.09, 'triangle', 0.12)
   beep(master, 1047, t + 0.08, 0.12, 'triangle', 0.12)
@@ -146,8 +195,12 @@ export function bunyiBetul() {
 export function bunyiSalah() {
   if (muted) return
   const audio = ensure()
-  if (!audio || !master || audio.state !== 'running') return
+  if (!audio || !master || !isRunning(audio)) return
   const t = audio.currentTime
   beep(master, 196, t, 0.12, 'sine', 0.14)
   beep(master, 147, t + 0.1, 0.16, 'sine', 0.12)
+}
+
+export function audioSudahHidup() {
+  return unlocked && !!ctx && isRunning(ctx)
 }

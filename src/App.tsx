@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
+  audioSudahHidup,
   bunyiBetul,
   bunyiSalah,
   hidupkanAudio,
@@ -114,9 +115,10 @@ export default function App() {
 
   useEffect(() => {
     const unlock = () => {
+      if (!muatBisu()) void hidupkanAudio()
+      if (!audioSudahHidup()) return
       window.removeEventListener('pointerdown', unlock, true)
       window.removeEventListener('keydown', unlock)
-      if (!muatBisu()) void hidupkanAudio()
     }
     window.addEventListener('pointerdown', unlock, true)
     window.addEventListener('keydown', unlock)
@@ -211,7 +213,7 @@ export default function App() {
   }
 
   function mula(opts?: { announce?: boolean }) {
-    if (!bisu) void hidupkanAudio()
+    void hidupkanAudio()
     resetRoundState()
     setRoundId((n) => n + 1)
     setScreen('main')
@@ -282,6 +284,7 @@ export default function App() {
   }
 
   function addDigit(digit: string) {
+    void hidupkanAudio()
     if (lockedRef.current || (screen !== 'main' && screen !== 'ulang')) return
     if (inputRef.current.length >= 3) return
     const next = `${inputRef.current}${digit}`
