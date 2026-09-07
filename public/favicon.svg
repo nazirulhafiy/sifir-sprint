@@ -1,14 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#0b1220" />
-  <text
-    x="16"
-    y="23"
-    text-anchor="middle"
-    font-size="22"
-    font-weight="800"
-    fill="#f5c15d"
-    font-family="system-ui, sans-serif"
-  >
-    ×
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Sifir Sprint">
+  <title>Sifir Sprint</title>
+  <rect x="5" y="6" width="25" height="25" rx="8" fill="#141414" />
+  <g clip-path="url(#card)">
+    <rect x="1.5" y="1.5" width="25" height="25" rx="8" fill="#ffe566" />
+    <path fill="#2ee0b2" d="M1.5 21.2c3.2-2.4 6.6-.6 9.4-1.8 2.6-1.1 4.4-3 7.4-2.4 3 .6 4.6 2.8 8.2 2.2V27H1.5Z" />
+    <path
+      fill="none"
+      stroke="#141414"
+      stroke-width="1.6"
+      stroke-linejoin="round"
+      d="M1.5 21.2c3.2-2.4 6.6-.6 9.4-1.8 2.6-1.1 4.4-3 7.4-2.4 3 .6 4.6 2.8 8.2 2.2"
+    />
+  </g>
+  <rect
+    x="1.5"
+    y="1.5"
+    width="25"
+    height="25"
+    rx="8"
+    fill="none"
+    stroke="#141414"
+    stroke-width="2.6"
+  />
+  <g transform="translate(14 13.2) rotate(-18)" fill="#16224a" stroke="#141414" stroke-linejoin="round" stroke-width="1.35">
+    <rect x="-7.4" y="-2" width="14.8" height="4" rx="2" />
+    <rect x="-2" y="-7.4" width="4" height="14.8" rx="2" />
+  </g>
+  <defs>
+    <clipPath id="card">
+      <rect x="1.5" y="1.5" width="25" height="25" rx="8" />
+    </clipPath>
+  </defs>
 </svg>

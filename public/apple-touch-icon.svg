@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Sifir Sprint">
+  <title>Sifir Sprint</title>
+  <rect width="180" height="180" fill="#16224a" />
+  <rect x="42" y="46" width="112" height="112" rx="32" fill="#141414" />
+  <g clip-path="url(#plate)">
+    <rect x="28" y="28" width="112" height="112" rx="32" fill="#ffe566" />
+    <path fill="#2ee0b2" d="M28 116c14-11 30-3 42-8 12-5 20-14 34-11 13 3 21 13 36 10v33H28Z" />
+    <path
+      fill="none"
+      stroke="#141414"
+      stroke-width="6"
+      stroke-linejoin="round"
+      d="M28 116c14-11 30-3 42-8 12-5 20-14 34-11 13 3 21 13 36 10"
+    />
+  </g>
+  <rect
+    x="28"
+    y="28"
+    width="112"
+    height="112"
+    rx="32"
+    fill="none"
+    stroke="#141414"
+    stroke-width="10"
+  />
+  <g transform="translate(84 82) rotate(-18)" fill="#16224a" stroke="#141414" stroke-linejoin="round" stroke-width="5.5">
+    <rect x="-34" y="-9" width="68" height="18" rx="9" />
+    <rect x="-9" y="-34" width="18" height="68" rx="9" />
+  </g>
+  <defs>
+    <clipPath id="plate">
+      <rect x="28" y="28" width="112" height="112" rx="32" />
+    </clipPath>
+  </defs>
+</svg>
