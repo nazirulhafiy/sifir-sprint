@@ -201,6 +201,16 @@ export function bunyiSalah() {
   beep(master, 147, t + 0.1, 0.16, 'sine', 0.12)
 }
 
+export function bunyiTamat() {
+  if (muted) return
+  const audio = ensure()
+  if (!audio || !master || !isRunning(audio)) return
+  const t = audio.currentTime
+  beep(master, 659, t, 0.1, 'triangle', 0.12)
+  beep(master, 523, t + 0.09, 0.11, 'triangle', 0.11)
+  beep(master, 392, t + 0.2, 0.2, 'sine', 0.13)
+}
+
 export function audioSudahHidup() {
   return unlocked && !!ctx && isRunning(ctx)
 }

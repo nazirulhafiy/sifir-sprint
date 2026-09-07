@@ -3,6 +3,7 @@ import {
   audioSudahHidup,
   bunyiBetul,
   bunyiSalah,
+  bunyiTamat,
   hidupkanAudio,
   muatBisu,
   tetapkanBisu,
@@ -21,7 +22,7 @@ import { NumberPad } from './NumberPad.tsx'
 import { usePress } from './press.ts'
 import { muatStor, simpanPusingan, type Stor } from './storage.ts'
 
-type Screen = 'mula' | 'main' | 'ulang' | 'markah'
+type Screen = 'mula' | 'main' | 'tamat' | 'ulang' | 'markah'
 type Flash = 'betul' | 'salah' | null
 
 type Stats = {
@@ -44,6 +45,8 @@ const emptyStats = (): Stats => ({
 
 /** Grace window so Padam can clear a just-completed answer before auto-submit. */
 const AUTO_JAWAB_MS = 750
+/** Closure beat after the race before Belajar / Markah. */
+const TAMAT_MS = 1500
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('mula')
@@ -69,6 +72,8 @@ export default function App() {
   const secondsRef = useRef(seconds)
   const lockedRef = useRef(false)
   const replayIndexRef = useRef(0)
+  const screenRef = useRef(screen)
+  const closingTamatRef = useRef(false)
   const tickRef = useRef(0)
   const keysRef = useRef({
     addDigit: (_digit: string) => {},
@@ -111,6 +116,10 @@ export default function App() {
     secondsRef.current = seconds
   }, [seconds])
 
+  useEffect(() => {
+    screenRef.current = screen
+  }, [screen])
+
   useEffect(() => () => cancelPendingJawab(), [])
 
   useEffect(() => {
@@ -138,7 +147,12 @@ export default function App() {
         setLock(true)
         window.clearInterval(id)
         bumpTick()
-        afterTick(280, () => endPlay())
+        cancelPendingJawab()
+        closingTamatRef.current = false
+        screenRef.current = 'tamat'
+        bunyiTamat()
+        setScreen('tamat')
+        afterTick(TAMAT_MS, () => lanjutSelepasTamat())
         return
       }
       secondsRef.current = next
@@ -149,6 +163,13 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (screen === 'tamat') {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          lanjutSelepasTamat()
+        }
+        return
+      }
       if (screen !== 'main' && screen !== 'ulang') return
       if (event.key >= '0' && event.key <= '9') {
         event.preventDefault()
@@ -192,6 +213,7 @@ export default function App() {
   function resetRoundState() {
     bumpTick()
     cancelPendingJawab()
+    closingTamatRef.current = false
     savedRef.current = false
     const next = emptyStats()
     statsRef.current = next
@@ -230,10 +252,19 @@ export default function App() {
   }
 
   function keMula() {
-    if (screen === 'ulang' || screen === 'markah') persistRound()
+    if (screen === 'ulang' || screen === 'markah' || screen === 'tamat') {
+      persistRound()
+    }
     resetRoundState()
     setLandingPulse((n) => n + 1)
     setScreen('mula')
+  }
+
+  function lanjutSelepasTamat() {
+    if (closingTamatRef.current) return
+    if (screenRef.current !== 'tamat') return
+    closingTamatRef.current = true
+    endPlay()
   }
 
   function endPlay() {
@@ -434,6 +465,9 @@ export default function App() {
           onJawab={() => jawab(inputRef.current)}
         />
       )}
+      {screen === 'tamat' && (
+        <TamatScreen stats={stats} onLanjut={lanjutSelepasTamat} />
+      )}
       {screen === 'ulang' && (
         <ReplayScreen
           soalan={soalan}
@@ -616,6 +650,72 @@ function PlayScreen({
         onPadam={onPadam}
         onJawab={onJawab}
       />
+    </div>
+  )
+}
+
+function TamatScreen({
+  stats,
+  onLanjut,
+}: {
+  stats: Stats
+  onLanjut: () => void
+}) {
+  const press = usePress(onLanjut)
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center text-center">
+      <button
+        type="button"
+        data-testid="masa-tamat"
+        onPointerDown={press.onPointerDown}
+        onClick={press.onClick}
+        className="board wonky pop w-full bg-cream text-ink touch-manipulation"
+      >
+        <header className="bg-navy px-4 py-6 text-cream sm:py-7">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">
+            Pusingan ini
+          </p>
+          <h1 className="mt-2 text-5xl font-bold leading-[0.9] tracking-tight sm:text-6xl">
+            Masa tamat!
+          </h1>
+        </header>
+        <div className="board-rule bg-butter px-4 py-5">
+          <p className="text-[10px] font-bold uppercase tracking-widest">Markah</p>
+          <p
+            className="mt-1 text-7xl font-bold leading-none tabular"
+            data-testid="tamat-markah"
+          >
+            {stats.markah}
+          </p>
+        </div>
+        <div className="board-rule grid grid-cols-2">
+          <div className="board-col bg-teal px-3 py-4">
+            <p
+              className="text-3xl font-bold leading-none tabular"
+              data-testid="tamat-betul"
+            >
+              {stats.betul}
+            </p>
+            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
+              Betul
+            </p>
+          </div>
+          <div className="board-col bg-pink px-3 py-4">
+            <p
+              className="text-3xl font-bold leading-none tabular"
+              data-testid="tamat-salah"
+            >
+              {stats.salah}
+            </p>
+            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
+              Salah
+            </p>
+          </div>
+        </div>
+        <div className="board-foot board-rule w-full bg-gold py-4 text-xl font-bold text-ink">
+          Ketik untuk teruskan
+        </div>
+      </button>
     </div>
   )
 }
