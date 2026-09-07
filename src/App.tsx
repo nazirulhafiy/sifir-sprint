@@ -470,31 +470,50 @@ function MulaScreen({
       <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cream">
         KrackedDevs · Sekolah
       </p>
-      <h1 className="ink-thick wonky pop w-full bg-butter px-4 py-6 text-6xl font-bold leading-[0.9] tracking-tight text-ink sm:text-7xl">
-        Sifir
-        <br />
-        Sprint
-      </h1>
-      <p className="mt-5 max-w-xs text-base font-semibold leading-relaxed text-navy">
-        Soalan → jawab → markah → streak → lagi satu.
-      </p>
-      <div className="ink wonky pop mt-8 bg-cream px-6 py-5">
-        <p className="text-4xl font-bold tabular text-ink">{getMasaSaat()}s</p>
-        <p className="mt-1 text-sm font-semibold">Jadual darab 1–12</p>
-        {terbaik > 0 && (
-          <p className="mt-3 text-xs font-bold uppercase tracking-widest">
-            Terbaik · {terbaik}
+      <div className="board wonky pop w-full bg-cream text-ink">
+        <header className="bg-butter px-4 py-6 sm:py-7">
+          <h1 className="text-6xl font-bold leading-[0.9] tracking-tight sm:text-7xl">
+            Sifir
+            <br />
+            Sprint
+          </h1>
+          <p className="mx-auto mt-4 max-w-xs text-sm font-semibold leading-relaxed text-navy">
+            Soalan → jawab → markah → streak → lagi satu.
           </p>
-        )}
+        </header>
+        <div className="board-rule grid grid-cols-3">
+          <div className="board-col px-2 py-4">
+            <p className="text-3xl font-bold leading-none tabular sm:text-4xl">
+              {getMasaSaat()}s
+            </p>
+            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
+              Masa
+            </p>
+          </div>
+          <div className="board-col px-2 py-4">
+            <p className="text-3xl font-bold leading-none sm:text-4xl">1–12</p>
+            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
+              Jadual darab
+            </p>
+          </div>
+          <div className="board-col px-2 py-4">
+            <p className="text-3xl font-bold leading-none tabular sm:text-4xl">
+              {terbaik}
+            </p>
+            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
+              Terbaik
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          data-testid="mula"
+          onClick={onMula}
+          className="board-foot press board-rule w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
+        >
+          Mula
+        </button>
       </div>
-      <button
-        type="button"
-        data-testid="mula"
-        onClick={onMula}
-        className="press ink-thick wonky pop mt-10 w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
-      >
-        Mula
-      </button>
     </div>
   )
 }
@@ -657,54 +676,102 @@ function ScoreScreen({
   onLagiSatu: () => void
 }) {
   const sempurna = stats.salah === 0 && stats.betul > 0
+  const rekodTerbaik = stats.markah > 0 && stats.markah === stor.terbaik
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="ink-thick wonky tilt-r bg-butter px-4 py-5 text-center">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em]">Markah</p>
-        <p className="mt-2 text-7xl font-bold leading-none tabular" data-testid="markah">
-          {stats.markah}
-        </p>
-        <p className="mt-2 text-sm font-semibold">
-          {sempurna ? 'Sempurna — tiada tersalah!' : `${stats.betul} betul · ${stats.salah} salah`}
-        </p>
-      </header>
+    <div className="flex flex-1 flex-col justify-center py-2">
+      <article className="board wonky flex min-h-0 flex-1 flex-col bg-cream text-ink">
+        <header className="bg-butter px-4 py-5 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em]">
+            Papan markah
+          </p>
+          <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-navy">
+            Pusingan ini
+          </p>
+          <p className="mt-2 text-7xl font-bold leading-none tabular" data-testid="markah">
+            {stats.markah}
+          </p>
+          <p className="mt-2 text-sm font-semibold">
+            {sempurna
+              ? 'Sempurna — tiada tersalah!'
+              : `${stats.betul} betul · ${stats.salah} salah`}
+          </p>
+          {rekodTerbaik && (
+            <p className="mt-3 inline-block bg-navy px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gold">
+              Rekod terbaik
+            </p>
+          )}
+        </header>
 
-      <div className="mt-6 grid grid-cols-2 gap-2">
-        <StatPill label="Terbaik" value={stor.terbaik} accent />
-        <StatPill label="Streak terbaik" value={stats.streakTerbaik} />
-      </div>
+        <div className="board-rule grid grid-cols-2">
+          <div
+            data-testid="stat-terbaik"
+            className={`board-col px-3 py-3.5 text-center ${rekodTerbaik ? 'bg-gold' : 'bg-cream'}`}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest">Terbaik</p>
+            <p className="mt-1 text-3xl font-bold leading-none tabular">{stor.terbaik}</p>
+          </div>
+          <div
+            data-testid="stat-streak-terbaik"
+            className="board-col bg-teal px-3 py-3.5 text-center"
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest">
+              Streak terbaik
+            </p>
+            <p className="mt-1 text-3xl font-bold leading-none tabular">
+              {stats.streakTerbaik}
+            </p>
+          </div>
+        </div>
 
-      <section className="mt-6 flex-1">
-        <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-navy">
-          5 pusingan terakhir
-        </h2>
-        {stor.terakhir.length === 0 ? (
-          <p className="text-sm font-semibold text-navy">Belum ada rekod.</p>
-        ) : (
-          <ol className="space-y-2">
-            {stor.terakhir.map((rekod, i) => (
-              <li
-                key={`${rekod.masa}-${i}`}
-                className="ink wonky-sm flex items-center justify-between bg-cream px-3 py-2.5"
-              >
-                <span className="text-lg font-bold tabular">{rekod.markah}</span>
-                <span className="text-xs font-semibold">
-                  {rekod.betul} betul · {rekod.salah} salah
-                </span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
+        <section className="board-rule flex min-h-0 flex-1 flex-col">
+          <h2 className="bg-navy px-3 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-cream">
+            5 pusingan terakhir
+          </h2>
+          {stor.terakhir.length === 0 ? (
+            <p className="px-3 py-4 text-sm font-semibold text-navy">
+              Belum ada rekod.
+            </p>
+          ) : (
+            <ol className="min-h-0 flex-1 overflow-auto">
+              {stor.terakhir.map((rekod, i) => {
+                const ini = i === 0
+                return (
+                  <li
+                    key={`${rekod.masa}-${i}`}
+                    className={`board-row flex items-center justify-between gap-3 px-3 py-2.5 ${
+                      ini ? 'bg-butter' : 'bg-cream'
+                    }`}
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="w-5 text-xs font-bold tabular text-navy">
+                        {i + 1}
+                      </span>
+                      <span className="text-2xl font-bold tabular">{rekod.markah}</span>
+                      {ini && (
+                        <span className="bg-navy px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-gold">
+                          Ini
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-xs font-semibold">
+                      {rekod.betul} betul · {rekod.salah} salah
+                    </span>
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+        </section>
 
-      <button
-        type="button"
-        data-testid="lagi-satu"
-        onClick={onLagiSatu}
-        className="press ink-thick wonky mt-6 w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
-      >
-        Lagi Satu
-      </button>
+        <button
+          type="button"
+          data-testid="lagi-satu"
+          onClick={onLagiSatu}
+          className="board-foot press board-rule w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
+        >
+          Lagi Satu
+        </button>
+      </article>
     </div>
   )
 }

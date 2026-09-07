@@ -95,6 +95,29 @@ body {
   box-shadow: 5px 6px 0 #141414;
 }
 
+/* One shell: title / stats / actions share a single outline. */
+.board {
+  border: 5px solid #141414;
+  box-shadow: 5px 6px 0 #141414;
+  overflow: hidden;
+}
+
+.board-rule {
+  border-top: 4px solid #141414;
+}
+
+.board-col + .board-col {
+  border-left: 4px solid #141414;
+}
+
+.board-row + .board-row {
+  border-top: 3px solid #141414;
+}
+
+.board-foot:active:not(:disabled) {
+  filter: brightness(0.94);
+}
+
 .wonky {
   border-radius: 28px 20px 30px 18px / 20px 30px 16px 26px;
 }
