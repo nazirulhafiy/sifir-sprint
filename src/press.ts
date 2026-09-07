@@ -21,9 +21,11 @@ export function usePress(onPress: () => void, disabled = false) {
     onPointerDown(event: PointerEvent<HTMLButtonElement>) {
       if (disabled) return
       if (event.pointerType === 'mouse') return
+      // Fire first so AudioContext resume / BGM start stay in the user
+      // gesture. preventDefault() after that still blocks the extra click.
+      onPress()
       event.preventDefault()
       suppressGhostClick()
-      onPress()
     },
     onClick(event: MouseEvent<HTMLButtonElement>) {
       if (disabled) return
