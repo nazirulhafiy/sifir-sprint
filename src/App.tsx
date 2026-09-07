@@ -17,6 +17,7 @@ import {
 } from './game.ts'
 import { MuteToggle } from './MuteToggle.tsx'
 import { NumberPad } from './NumberPad.tsx'
+import { usePress } from './press.ts'
 import { muatStor, simpanPusingan, type Stor } from './storage.ts'
 
 type Screen = 'mula' | 'main' | 'ulang' | 'markah'
@@ -110,6 +111,20 @@ export default function App() {
   }, [seconds])
 
   useEffect(() => () => cancelPendingJawab(), [])
+
+  useEffect(() => {
+    const unlock = () => {
+      window.removeEventListener('pointerdown', unlock, true)
+      window.removeEventListener('keydown', unlock)
+      if (!muatBisu()) void hidupkanAudio()
+    }
+    window.addEventListener('pointerdown', unlock, true)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock, true)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [])
 
   useEffect(() => {
     if (screen !== 'main') return
@@ -395,16 +410,7 @@ export default function App() {
       <CartoonBackdrop />
       <div className="stage mx-auto flex min-h-svh w-full max-w-md flex-col px-4 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-1 flex items-center justify-end gap-2">
-        {screen !== 'mula' && (
-          <button
-            type="button"
-            data-testid="baru"
-            onClick={keMula}
-            className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
-          >
-            Baru
-          </button>
-        )}
+        {screen !== 'mula' && <BaruButton onBaru={keMula} />}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
       </div>
       {screen === 'mula' && (
@@ -452,6 +458,21 @@ export default function App() {
   )
 }
 
+function BaruButton({ onBaru }: { onBaru: () => void }) {
+  const press = usePress(onBaru)
+  return (
+    <button
+      type="button"
+      data-testid="baru"
+      onPointerDown={press.onPointerDown}
+      onClick={press.onClick}
+      className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
+    >
+      Baru
+    </button>
+  )
+}
+
 function MulaScreen({
   terbaik,
   landingPulse,
@@ -461,6 +482,7 @@ function MulaScreen({
   landingPulse: number
   onMula: () => void
 }) {
+  const press = usePress(onMula)
   return (
     <div
       key={landingPulse}
@@ -508,7 +530,8 @@ function MulaScreen({
         <button
           type="button"
           data-testid="mula"
-          onClick={onMula}
+          onPointerDown={press.onPointerDown}
+          onClick={press.onClick}
           className="board-foot press board-rule w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
         >
           Mula
@@ -619,6 +642,7 @@ function ReplayScreen({
   onJawab: () => void
   onMulaSemula: () => void
 }) {
+  const press = usePress(onMulaSemula)
   return (
     <div className="flex flex-1 flex-col">
       <header className="ink wonky-sm bg-pink px-3 py-2">
@@ -657,7 +681,8 @@ function ReplayScreen({
       <button
         type="button"
         data-testid="mula-semula"
-        onClick={onMulaSemula}
+        onPointerDown={press.onPointerDown}
+        onClick={press.onClick}
         className="press ink wonky mt-4 w-full bg-cream py-3 text-base font-bold touch-manipulation"
       >
         Mula Semula
@@ -675,6 +700,7 @@ function ScoreScreen({
   stor: Stor
   onLagiSatu: () => void
 }) {
+  const press = usePress(onLagiSatu)
   const sempurna = stats.salah === 0 && stats.betul > 0
   const rekodTerbaik = stats.markah > 0 && stats.markah === stor.terbaik
   return (
@@ -766,7 +792,8 @@ function ScoreScreen({
         <button
           type="button"
           data-testid="lagi-satu"
-          onClick={onLagiSatu}
+          onPointerDown={press.onPointerDown}
+          onClick={press.onClick}
           className="board-foot press board-rule w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
         >
           Lagi Satu

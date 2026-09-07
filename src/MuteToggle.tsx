@@ -1,16 +1,20 @@
+import { usePress } from './press.ts'
+
 type MuteToggleProps = {
   bisu: boolean
   onToggle: () => void
 }
 
 export function MuteToggle({ bisu, onToggle }: MuteToggleProps) {
+  const press = usePress(onToggle)
   return (
     <button
       type="button"
       data-testid="mute"
       aria-label={bisu ? 'Hidupkan bunyi' : 'Bisu'}
       aria-pressed={bisu}
-      onClick={onToggle}
+      onPointerDown={press.onPointerDown}
+      onClick={press.onClick}
       className="press ink wonky-orb grid h-12 w-12 place-items-center bg-cream text-ink touch-manipulation"
     >
       {bisu ? <IconOff /> : <IconOn />}
