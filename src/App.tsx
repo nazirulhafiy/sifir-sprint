@@ -58,6 +58,7 @@ export default function App() {
   const [bisu, setBisu] = useState(() => muatBisu())
   const [cue, setCue] = useState<string | null>(null)
   const [roundPulse, setRoundPulse] = useState(0)
+  const [landingPulse, setLandingPulse] = useState(0)
 
   const statsRef = useRef(stats)
   const soalanRef = useRef(soalan)
@@ -171,8 +172,7 @@ export default function App() {
     savedRef.current = true
   }
 
-  function mula(opts?: { announce?: boolean }) {
-    if (!bisu) void hidupkanAudio()
+  function resetRoundState() {
     bumpTick()
     cancelPendingJawab()
     savedRef.current = false
@@ -192,14 +192,18 @@ export default function App() {
     setLock(false)
     setReplayIndex(0)
     setReveal(null)
+    setCue(null)
+  }
+
+  function mula(opts?: { announce?: boolean }) {
+    if (!bisu) void hidupkanAudio()
+    resetRoundState()
     setRoundId((n) => n + 1)
     setScreen('main')
     if (opts?.announce) {
       setRoundPulse((n) => n + 1)
       setCue('Pusingan baru!')
       afterTick(2400, () => setCue(null))
-    } else {
-      setCue(null)
     }
   }
 
@@ -208,9 +212,11 @@ export default function App() {
     mula({ announce: true })
   }
 
-  function mulaBaru() {
+  function keMula() {
     if (screen === 'ulang' || screen === 'markah') persistRound()
-    mula({ announce: true })
+    resetRoundState()
+    setLandingPulse((n) => n + 1)
+    setScreen('mula')
   }
 
   function endPlay() {
@@ -393,7 +399,7 @@ export default function App() {
           <button
             type="button"
             data-testid="baru"
-            onClick={mulaBaru}
+            onClick={keMula}
             className="press ink wonky-sm bg-cream px-3 py-2 text-sm font-bold touch-manipulation"
           >
             Baru
@@ -401,7 +407,9 @@ export default function App() {
         )}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
       </div>
-      {screen === 'mula' && <MulaScreen terbaik={stor.terbaik} onMula={mula} />}
+      {screen === 'mula' && (
+        <MulaScreen terbaik={stor.terbaik} landingPulse={landingPulse} onMula={mula} />
+      )}
       {screen === 'main' && (
         <PlayScreen
           seconds={seconds}
@@ -446,17 +454,23 @@ export default function App() {
 
 function MulaScreen({
   terbaik,
+  landingPulse,
   onMula,
 }: {
   terbaik: number
+  landingPulse: number
   onMula: () => void
 }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center text-center">
+    <div
+      key={landingPulse}
+      data-testid="landing"
+      className="flex flex-1 flex-col items-center justify-center text-center"
+    >
       <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cream">
         KrackedDevs · Sekolah
       </p>
-      <h1 className="ink-thick wonky w-full bg-butter px-4 py-6 text-6xl font-bold leading-[0.9] tracking-tight text-ink sm:text-7xl">
+      <h1 className="ink-thick wonky pop w-full bg-butter px-4 py-6 text-6xl font-bold leading-[0.9] tracking-tight text-ink sm:text-7xl">
         Sifir
         <br />
         Sprint
@@ -464,7 +478,7 @@ function MulaScreen({
       <p className="mt-5 max-w-xs text-base font-semibold leading-relaxed text-navy">
         Soalan → jawab → markah → streak → lagi satu.
       </p>
-      <div className="ink wonky mt-8 bg-cream px-6 py-5">
+      <div className="ink wonky pop mt-8 bg-cream px-6 py-5">
         <p className="text-4xl font-bold tabular text-ink">{getMasaSaat()}s</p>
         <p className="mt-1 text-sm font-semibold">Jadual darab 1–12</p>
         {terbaik > 0 && (
@@ -477,7 +491,7 @@ function MulaScreen({
         type="button"
         data-testid="mula"
         onClick={onMula}
-        className="press ink-thick wonky mt-10 w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
+        className="press ink-thick wonky pop mt-10 w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
       >
         Mula
       </button>
