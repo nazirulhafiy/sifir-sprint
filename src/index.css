@@ -173,10 +173,10 @@ body {
 @keyframes pulse-low {
   0%,
   100% {
-    transform: scale(1) rotate(-1deg);
+    box-shadow: 0 0 0 0 #ff4d6a;
   }
   50% {
-    transform: scale(1.08) rotate(2deg);
+    box-shadow: 0 0 0 6px #ff4d6a;
   }
 }
 
