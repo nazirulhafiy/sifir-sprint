@@ -1,4 +1,4 @@
-import type { PointerEvent } from 'react'
+import { usePress } from './press.ts'
 
 type NumberPadProps = {
   disabled?: boolean
@@ -62,6 +62,7 @@ function PadButton({
   wobble,
   onClick,
 }: PadButtonProps) {
+  const press = usePress(onClick, disabled)
   const toneClass =
     tone === 'gold'
       ? 'bg-gold'
@@ -69,21 +70,12 @@ function PadButton({
         ? 'bg-pink'
         : 'bg-butter'
 
-  function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
-    if (disabled) return
-    // Mouse keeps click-on-release (can cancel by dragging off). Touch fires
-    // on press so :active movement cannot swallow the tap.
-    if (event.pointerType === 'mouse') return
-    event.preventDefault()
-    onClick()
-  }
-
   return (
     <button
       type="button"
       disabled={disabled}
-      onPointerDown={handlePointerDown}
-      onClick={onClick}
+      onPointerDown={press.onPointerDown}
+      onClick={press.onClick}
       data-testid={label === 'Jawab' ? 'jawab' : label === 'Padam' ? 'padam' : `digit-${label}`}
       className={`press ink wonky-sm min-h-14 text-xl font-bold tracking-wide text-ink touch-manipulation disabled:opacity-40 disabled:shadow-none ${toneClass} ${wobble === 'l' ? 'tilt-l' : wobble === 'r' ? 'tilt-r' : ''}`}
     >

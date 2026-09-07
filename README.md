@@ -34,7 +34,7 @@ Optional short practice: `http://localhost:5173/sifir-sprint/?masa=15`
 2. **Belajar / Replay** — only the misses; jawapan betul shown on a miss
 3. **Markah** — this round, best, last five rounds (`localStorage`)
 
-Mute sits in the top-right. First visit starts muted; unmute (or Mula after unmute) starts the generated BGM loop. Preference is saved in `localStorage`.
+Mute sits in the top-right. First visit starts with sound on; browsers may wait for **Mula** (or another tap) before the BGM loop actually plays. Preference is saved in `localStorage`.
 
 After 60s: **Belajar / Replay** (misses only) → **Markah**. **Mula Semula** / **Lagi Satu** starts a fresh round without a page reload. **Baru** (play, Belajar, or Markah) leaves the round and returns to the title screen — press **Mula** for a fresh race.
 
