@@ -22,7 +22,7 @@ import { NumberPad } from './NumberPad.tsx'
 import { usePress } from './press.ts'
 import { muatStor, simpanPusingan, type Stor } from './storage.ts'
 
-type Screen = 'mula' | 'main' | 'tamat' | 'markah'
+type Screen = 'mula' | 'main' | 'tamat'
 type Flash = 'betul' | 'salah' | null
 
 type Stats = {
@@ -43,8 +43,6 @@ const emptyStats = (): Stats => ({
 
 /** Grace window so Padam can clear a just-completed answer before auto-submit. */
 const AUTO_JAWAB_MS = 750
-/** Closure beat after the race before Markah. */
-const TAMAT_MS = 1500
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('mula')
@@ -67,8 +65,6 @@ export default function App() {
   const inputRef = useRef(input)
   const secondsRef = useRef(seconds)
   const lockedRef = useRef(false)
-  const screenRef = useRef(screen)
-  const closingTamatRef = useRef(false)
   const tickRef = useRef(0)
   const keysRef = useRef({
     addDigit: (_digit: string) => {},
@@ -111,10 +107,6 @@ export default function App() {
     secondsRef.current = seconds
   }, [seconds])
 
-  useEffect(() => {
-    screenRef.current = screen
-  }, [screen])
-
   useEffect(() => () => cancelPendingJawab(), [])
 
   useEffect(() => {
@@ -143,11 +135,9 @@ export default function App() {
         window.clearInterval(id)
         bumpTick()
         cancelPendingJawab()
-        closingTamatRef.current = false
-        screenRef.current = 'tamat'
         bunyiTamat()
+        persistRound()
         setScreen('tamat')
-        afterTick(TAMAT_MS, () => lanjutSelepasTamat())
         return
       }
       secondsRef.current = next
@@ -158,13 +148,6 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (screen === 'tamat') {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          lanjutSelepasTamat()
-        }
-        return
-      }
       if (screen !== 'main') return
       if (event.key >= '0' && event.key <= '9') {
         event.preventDefault()
@@ -208,7 +191,6 @@ export default function App() {
   function resetRoundState() {
     bumpTick()
     cancelPendingJawab()
-    closingTamatRef.current = false
     savedRef.current = false
     const next = emptyStats()
     statsRef.current = next
@@ -239,26 +221,12 @@ export default function App() {
   }
 
   function keMula() {
-    if (screen === 'markah' || screen === 'tamat') {
+    if (screen === 'tamat') {
       persistRound()
     }
     resetRoundState()
     setLandingPulse((n) => n + 1)
     setScreen('mula')
-  }
-
-  function lanjutSelepasTamat() {
-    if (closingTamatRef.current) return
-    if (screenRef.current !== 'tamat') return
-    closingTamatRef.current = true
-    bumpTick()
-    cancelPendingJawab()
-    keMarkah()
-  }
-
-  function keMarkah() {
-    persistRound()
-    setScreen('markah')
   }
 
   function applyStats(next: Stats) {
@@ -394,12 +362,9 @@ export default function App() {
         />
       )}
       {screen === 'tamat' && (
-        <TamatScreen stats={stats} onLanjut={lanjutSelepasTamat} />
-      )}
-      {screen === 'markah' && (
-        <ScoreScreen
+        <TamatScreen
           stats={stats}
-          stor={stor}
+          terbaik={stor.terbaik}
           onLagiSatu={() => mula({ announce: true })}
         />
       )}
@@ -573,20 +538,21 @@ function PlayScreen({
 
 function TamatScreen({
   stats,
-  onLanjut,
+  terbaik,
+  onLagiSatu,
 }: {
   stats: Stats
-  onLanjut: () => void
+  terbaik: number
+  onLagiSatu: () => void
 }) {
-  const press = usePress(onLanjut)
+  const press = usePress(onLagiSatu)
+  const sempurna = stats.salah === 0 && stats.betul > 0
+  const rekodTerbaik = stats.markah > 0 && stats.markah === terbaik
   return (
     <div className="flex flex-1 flex-col items-center justify-center text-center">
-      <button
-        type="button"
+      <article
         data-testid="masa-tamat"
-        onPointerDown={press.onPointerDown}
-        onClick={press.onClick}
-        className="board wonky pop w-full bg-cream text-ink touch-manipulation"
+        className="board wonky pop w-full bg-cream text-ink"
       >
         <header className="bg-navy px-4 py-6 text-cream sm:py-7">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">
@@ -604,137 +570,30 @@ function TamatScreen({
           >
             {stats.markah}
           </p>
-        </div>
-        <div className="board-rule grid grid-cols-2">
-          <div className="board-col bg-teal px-3 py-4">
-            <p
-              className="text-3xl font-bold leading-none tabular"
-              data-testid="tamat-betul"
-            >
-              {stats.betul}
-            </p>
-            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
-              Betul
-            </p>
-          </div>
-          <div className="board-col bg-pink px-3 py-4">
-            <p
-              className="text-3xl font-bold leading-none tabular"
-              data-testid="tamat-salah"
-            >
-              {stats.salah}
-            </p>
-            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
-              Salah
-            </p>
-          </div>
-        </div>
-        <div className="board-foot board-rule w-full bg-gold py-4 text-xl font-bold text-ink">
-          Ketik untuk teruskan
-        </div>
-      </button>
-    </div>
-  )
-}
-
-function ScoreScreen({
-  stats,
-  stor,
-  onLagiSatu,
-}: {
-  stats: Stats
-  stor: Stor
-  onLagiSatu: () => void
-}) {
-  const press = usePress(onLagiSatu)
-  const sempurna = stats.salah === 0 && stats.betul > 0
-  const rekodTerbaik = stats.markah > 0 && stats.markah === stor.terbaik
-  return (
-    <div className="flex flex-1 flex-col justify-center py-2">
-      <article className="board wonky flex min-h-0 flex-1 flex-col bg-cream text-ink">
-        <header className="bg-butter px-4 py-5 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em]">
-            Papan markah
-          </p>
-          <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-navy">
-            Pusingan ini
-          </p>
-          <p className="mt-2 text-7xl font-bold leading-none tabular" data-testid="markah">
-            {stats.markah}
-          </p>
           <p className="mt-2 text-sm font-semibold">
-            {sempurna
-              ? 'Sempurna — tiada tersalah!'
-              : `${stats.betul} betul · ${stats.salah} salah`}
+            <span data-testid="tamat-betul">{stats.betul}</span>
+            {' betul · '}
+            <span data-testid="tamat-salah">{stats.salah}</span>
+            {' salah'}
           </p>
+          {sempurna && (
+            <p className="mt-2 text-sm font-semibold text-navy">
+              Sempurna — tiada tersalah!
+            </p>
+          )}
           {rekodTerbaik && (
             <p className="mt-3 inline-block bg-navy px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gold">
               Rekod terbaik
             </p>
           )}
-        </header>
-
-        <div className="board-rule grid grid-cols-2">
-          <div
-            data-testid="stat-terbaik"
-            className={`board-col px-3 py-3.5 text-center ${rekodTerbaik ? 'bg-gold' : 'bg-cream'}`}
-          >
-            <p className="text-[10px] font-bold uppercase tracking-widest">Terbaik</p>
-            <p className="mt-1 text-3xl font-bold leading-none tabular">{stor.terbaik}</p>
-          </div>
-          <div
-            data-testid="stat-streak-terbaik"
-            className="board-col bg-teal px-3 py-3.5 text-center"
-          >
-            <p className="text-[10px] font-bold uppercase tracking-widest">
-              Streak terbaik
-            </p>
-            <p className="mt-1 text-3xl font-bold leading-none tabular">
-              {stats.streakTerbaik}
-            </p>
-          </div>
         </div>
-
-        <section className="board-rule flex min-h-0 flex-1 flex-col">
-          <h2 className="bg-navy px-3 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-cream">
-            5 pusingan terakhir
-          </h2>
-          {stor.terakhir.length === 0 ? (
-            <p className="px-3 py-4 text-sm font-semibold text-navy">
-              Belum ada rekod.
-            </p>
-          ) : (
-            <ol className="min-h-0 flex-1 overflow-auto">
-              {stor.terakhir.map((rekod, i) => {
-                const ini = i === 0
-                return (
-                  <li
-                    key={`${rekod.masa}-${i}`}
-                    className={`board-row flex items-center justify-between gap-3 px-3 py-2.5 ${
-                      ini ? 'bg-butter' : 'bg-cream'
-                    }`}
-                  >
-                    <span className="flex min-w-0 items-center gap-3">
-                      <span className="w-5 text-xs font-bold tabular text-navy">
-                        {i + 1}
-                      </span>
-                      <span className="text-2xl font-bold tabular">{rekod.markah}</span>
-                      {ini && (
-                        <span className="bg-navy px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-gold">
-                          Ini
-                        </span>
-                      )}
-                    </span>
-                    <span className="shrink-0 text-xs font-semibold">
-                      {rekod.betul} betul · {rekod.salah} salah
-                    </span>
-                  </li>
-                )
-              })}
-            </ol>
-          )}
-        </section>
-
+        <div
+          data-testid="stat-terbaik"
+          className={`board-rule px-4 py-4 ${rekodTerbaik ? 'bg-gold' : 'bg-cream'}`}
+        >
+          <p className="text-[10px] font-bold uppercase tracking-widest">Terbaik</p>
+          <p className="mt-1 text-3xl font-bold leading-none tabular">{terbaik}</p>
+        </div>
         <button
           type="button"
           data-testid="lagi-satu"

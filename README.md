@@ -4,7 +4,7 @@
 
 **The loop:** soalan → jawab → markah → streak → lagi satu.
 
-A 60-second jadual darab sprint. Questions are generated on the fly (1–12 × 1–12). Correct answers grow a streak; 3+ in a row doubles points. Misses are counted on the markah board (betul · salah).
+A 60-second jadual darab sprint. Questions are generated on the fly (1–12 × 1–12). Correct answers grow a streak; 3+ in a row doubles points. Misses show as betul · salah on Masa tamat.
 
 ## Play
 
@@ -31,12 +31,11 @@ Optional short practice: `http://localhost:5173/sifir-sprint/?masa=15`
 ## Screens
 
 1. **Play** — big 60s timer, soalan, number pad, live markah + streak
-2. **Masa tamat** — short closure beat with this-round markah + betul · salah; tap or ~1.5s then continue
-3. **Markah** — this round, best, last five rounds (`localStorage`)
+2. **Masa tamat** — terminal end screen: this-round markah, betul · salah, Terbaik; **Lagi Satu** or **Baru**
 
 Mute sits in the top-right. First visit starts with sound on; the first **Mula** tap (or a pad/key) unlocks audio and starts the BGM loop when mute is off. Preference is saved in `localStorage`.
 
-After 60s: **Masa tamat!** → **Markah**. **Lagi Satu** starts a fresh round without a page reload. **Baru** (play, Masa tamat, or Markah) leaves the round and returns to the title screen — press **Mula** for a fresh race.
+After 60s: **Masa tamat!** Best score updates in `localStorage`. **Lagi Satu** starts a fresh round without a page reload. **Baru** (play or Masa tamat) leaves the round and returns to the title screen — press **Mula** for a fresh race.
 
 ## Ship
 
