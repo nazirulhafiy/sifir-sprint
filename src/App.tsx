@@ -563,9 +563,9 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative mt-4 mb-3 flex min-h-0 flex-1 flex-col px-4 pt-5 pb-4 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-4 mb-4 flex min-h-0 flex-1 flex-col px-4 pt-5 pb-7 text-center ${fill}`}
     >
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-end gap-2 overflow-hidden">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
           key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
