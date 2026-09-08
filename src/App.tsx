@@ -380,7 +380,7 @@ function MulaScreen({
       className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto text-center"
     >
       <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cream">
-        KrackedDevs · Sekolah
+        KRACKEDDEVS · SEKOLAH EDITION
       </p>
       <div className="board wonky pop w-full bg-cream text-ink">
         <header className="bg-butter px-4 py-6 sm:py-7">
@@ -390,7 +390,7 @@ function MulaScreen({
             Sprint
           </h1>
           <p className="mx-auto mt-4 max-w-xs text-sm font-semibold leading-relaxed text-navy">
-            Soalan → jawab → markah → streak → lagi satu.
+            Soalan → jawab → markah → streak → Try Lagi.
           </p>
         </header>
         <div className="board-rule grid grid-cols-2">
@@ -556,7 +556,7 @@ function TamatScreen({
           onClick={press.onClick}
           className="board-foot press board-rule w-full bg-gold py-4 text-xl font-bold text-ink touch-manipulation"
         >
-          Lagi Satu
+          Try Lagi
         </button>
       </article>
     </div>
