@@ -338,7 +338,7 @@ export default function App() {
   return (
     <div className="sky-stage">
       <CartoonBackdrop />
-      <div className="stage mx-auto flex h-svh max-h-svh w-full max-w-md flex-col overflow-hidden px-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] pt-[max(1rem,env(safe-area-inset-top))]">
+      <div className="stage mx-auto flex h-svh max-h-svh w-full max-w-md flex-col overflow-hidden px-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+2.5rem))] pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-1 flex shrink-0 items-center justify-end gap-2">
         {screen !== 'mula' && <BaruButton onBaru={keMula} />}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
