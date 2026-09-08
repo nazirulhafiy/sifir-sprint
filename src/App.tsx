@@ -53,8 +53,6 @@ export default function App() {
   const [locked, setLocked] = useState(false)
   const [roundId, setRoundId] = useState(0)
   const [bisu, setBisu] = useState(() => muatBisu())
-  const [cue, setCue] = useState<string | null>(null)
-  const [roundPulse, setRoundPulse] = useState(0)
   const [landingPulse, setLandingPulse] = useState(0)
 
   const statsRef = useRef(stats)
@@ -186,19 +184,13 @@ export default function App() {
     setSeconds(masa)
     setFlash(null)
     setLock(false)
-    setCue(null)
   }
 
-  function mula(opts?: { announce?: boolean }) {
+  function mula() {
     void hidupkanAudio()
     resetRoundState()
     setRoundId((n) => n + 1)
     setScreen('main')
-    if (opts?.announce) {
-      setRoundPulse((n) => n + 1)
-      setCue('Pusingan baru!')
-      afterTick(2400, () => setCue(null))
-    }
   }
 
   function keMula() {
@@ -332,8 +324,6 @@ export default function App() {
           stats={stats}
           flash={flash}
           locked={locked}
-          cue={cue}
-          roundPulse={roundPulse}
           onDigit={addDigit}
           onPadam={padam}
           onJawab={() => jawab(inputRef.current)}
@@ -342,7 +332,7 @@ export default function App() {
       {screen === 'tamat' && (
         <TamatScreen
           stats={stats}
-          onLagiSatu={() => mula({ announce: true })}
+          onLagiSatu={mula}
         />
       )}
       </div>
@@ -430,8 +420,6 @@ function PlayScreen({
   stats,
   flash,
   locked,
-  cue,
-  roundPulse,
   onDigit,
   onPadam,
   onJawab,
@@ -442,8 +430,6 @@ function PlayScreen({
   stats: Stats
   flash: Flash
   locked: boolean
-  cue: string | null
-  roundPulse: number
   onDigit: (digit: string) => void
   onPadam: () => void
   onJawab: () => void
@@ -461,9 +447,8 @@ function PlayScreen({
           </p>
         </div>
         <div
-          key={roundPulse}
           data-testid="timer"
-          className={`wonky-orb relative h-[88px] w-[88px] shrink-0 ${low ? 'tick-low' : ''} ${roundPulse > 0 ? 'pop' : ''}`}
+          className={`wonky-orb relative h-[88px] w-[88px] shrink-0 ${low ? 'tick-low' : ''}`}
         >
           <div
             className={`ink wonky-orb grid h-full w-full place-items-center overflow-hidden text-center ${low ? 'bg-bad text-cream' : 'bg-cream'}`}
@@ -483,11 +468,9 @@ function PlayScreen({
           soalan={soalan}
           input={input}
           flash={flash}
-          pulseKey={roundPulse}
-          cue={cue}
         />
 
-        <div key={roundPulse} className="mb-4 grid shrink-0 grid-cols-2 gap-2">
+        <div className="mb-4 grid shrink-0 grid-cols-2 gap-2">
           <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
           <StatPill
             label="Streak"
@@ -567,14 +550,10 @@ function QuestionCard({
   soalan,
   input,
   flash,
-  pulseKey = 0,
-  cue = null,
 }: {
   soalan: Soalan
   input: string
   flash: Flash
-  pulseKey?: number
-  cue?: string | null
 }) {
   const fill =
     flash === 'betul' ? 'bg-ok' : flash === 'salah' ? 'bg-bad' : 'bg-cream'
@@ -586,18 +565,10 @@ function QuestionCard({
       data-b={soalan.b}
       className={`ink-thick wonky relative my-5 flex min-h-0 flex-1 flex-col px-4 py-6 text-center ${fill}`}
     >
-      {cue && (
-        <p
-          data-testid="pusingan-baru"
-          className="cue-pop ink-thick wonky-sm absolute left-3 right-3 top-3 z-10 bg-gold px-3 py-2.5 text-lg font-bold leading-tight"
-        >
-          {cue}
-        </p>
-      )}
       <div className="flex flex-1 flex-col items-center justify-center">
         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
-          key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}-${pulseKey}`}
+          key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
           className="pop text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl"
         >
           {soalan.a} <span className="text-pink">×</span> {soalan.b}
