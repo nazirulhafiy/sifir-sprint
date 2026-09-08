@@ -563,7 +563,7 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative mt-2 mb-2 flex min-h-0 flex-1 flex-col px-4 pt-4 pb-7 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-2 mb-2 flex min-h-0 flex-1 flex-col px-4 pt-4 pb-3 text-center ${fill}`}
     >
       <div className="flex min-h-0 flex-1 flex-col items-center justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
