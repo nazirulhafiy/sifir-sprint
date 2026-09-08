@@ -64,6 +64,34 @@ async function assertEquationDoesNotOverlapInput(page: Page) {
   expect(gap, 'equation and input chip should have non-negative vertical gap').toBeGreaterThanOrEqual(0)
 }
 
+async function assertInputChipShadowNotClipped(page: Page) {
+  const soalan = page.getByTestId('soalan')
+  const input = page.getByTestId('input')
+  // Mid overflow wrapper is the direct parent of the soalan card.
+  const mid = soalan.locator('xpath=..')
+
+  const inputBox = await input.boundingBox()
+  const soalanBox = await soalan.boundingBox()
+  const midBox = await mid.boundingBox()
+  expect(inputBox, 'input chip should have a bounding box').not.toBeNull()
+  expect(soalanBox, 'soalan should have a bounding box').not.toBeNull()
+  expect(midBox, 'mid overflow container should have a bounding box').not.toBeNull()
+
+  const inputBottom = inputBox!.y + inputBox!.height
+  const aboveSoalan = soalanBox!.y + soalanBox!.height - inputBottom
+  const aboveMid = midBox!.y + midBox!.height - inputBottom
+
+  // .ink shadow is 5px down; keep >=6px so the butter chip ink is not mid/card-clipped.
+  expect(
+    aboveSoalan,
+    `input chip bottom should clear soalan card bottom by >=6px for ink shadow (got ${aboveSoalan.toFixed(2)}px)`,
+  ).toBeGreaterThanOrEqual(6)
+  expect(
+    aboveMid,
+    `input chip bottom should clear mid overflow by >=6px (got ${aboveMid.toFixed(2)}px)`,
+  ).toBeGreaterThanOrEqual(6)
+}
+
 async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
   await page.setViewportSize({ width: vw, height: vh })
   await page.goto('./')
@@ -83,6 +111,7 @@ async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
   await assertFullyInViewport(soalan, vw, vh, 'soalan')
   await assertInputDoesNotCoverStreakLabel(page)
   await assertEquationDoesNotOverlapInput(page)
+  await assertInputChipShadowNotClipped(page)
 }
 
 test.describe('play layout fits short iPhone viewports', () => {
