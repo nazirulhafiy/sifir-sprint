@@ -1,36 +1,23 @@
-import { expect, test, type Locator } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
+
+const VIEWPORTS = [
+  { name: '390x844', width: 390, height: 844 },
+  { name: '390x680', width: 390, height: 680 },
+] as const
 
 function isInViewport(box: { x: number; y: number; width: number; height: number }, vw: number, vh: number) {
   return box.x >= 0 && box.y >= 0 && box.x + box.width <= vw && box.y + box.height <= vh
 }
 
-async function assertFullyInViewport(locator: Locator, vw: number, vh: number) {
+async function assertFullyInViewport(locator: Locator, vw: number, vh: number, label: string) {
   const box = await locator.boundingBox()
-  expect(box, 'element should have a bounding box').not.toBeNull()
-  expect(isInViewport(box!, vw, vh), 'element should be fully in viewport').toBe(true)
+  expect(box, `${label} should have a bounding box`).not.toBeNull()
+  expect(isInViewport(box!, vw, vh), `${label} should be fully in viewport`).toBe(true)
 }
 
-test('MARKAH and STREAK stay in viewport on iPhone after Mula', async ({ page }) => {
-  const vw = 390
-  const vh = 844
-
-  await page.setViewportSize({ width: vw, height: vh })
-  await page.goto('./')
-
-  await page.getByTestId('mula').click()
-  await expect(page.getByTestId('soalan')).toBeVisible()
-
-  const markah = page.getByTestId('stat-markah')
+async function assertInputDoesNotCoverStreakLabel(page: Page) {
   const streak = page.getByTestId('stat-streak')
   const input = page.getByTestId('input')
-
-  await expect(markah).toBeVisible()
-  await expect(streak).toBeVisible()
-
-  await assertFullyInViewport(markah, vw, vh)
-  await assertFullyInViewport(streak, vw, vh)
-
-  // Input chip may lightly overhang the stats row, but must not cover STREAK label text.
   const streakLabel = streak.locator('p').first()
   await expect(streakLabel).toHaveText(/streak/i)
 
@@ -50,4 +37,32 @@ test('MARKAH and STREAK stay in viewport on iPhone after Mula', async ({ page })
     overlapX <= 0 || overlapY <= 0,
     'input chip should not cover the STREAK label',
   ).toBe(true)
+}
+
+async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
+  await page.setViewportSize({ width: vw, height: vh })
+  await page.goto('./')
+
+  await page.getByTestId('mula').click()
+  await expect(page.getByTestId('soalan')).toBeVisible()
+
+  const markah = page.getByTestId('stat-markah')
+  const streak = page.getByTestId('stat-streak')
+  const soalan = page.getByTestId('soalan')
+
+  await expect(markah).toBeVisible()
+  await expect(streak).toBeVisible()
+
+  await assertFullyInViewport(markah, vw, vh, 'MARKAH')
+  await assertFullyInViewport(streak, vw, vh, 'STREAK')
+  await assertFullyInViewport(soalan, vw, vh, 'soalan')
+  await assertInputDoesNotCoverStreakLabel(page)
+}
+
+test.describe('play layout fits short iPhone viewports', () => {
+  for (const { name, width, height } of VIEWPORTS) {
+    test(`MARKAH, STREAK, and soalan stay in viewport at ${name} after Mula`, async ({ page }) => {
+      await assertPlayLayoutFits(page, width, height)
+    })
+  }
 })

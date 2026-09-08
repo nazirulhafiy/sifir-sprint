@@ -463,7 +463,7 @@ function PlayScreen({
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <QuestionCard
           soalan={soalan}
           input={input}
@@ -563,9 +563,9 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative mt-5 mb-3 flex shrink-0 flex-col px-4 pt-6 pb-5 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-5 mb-3 flex min-h-0 flex-1 flex-col px-4 pt-6 pb-5 text-center ${fill}`}
     >
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
           key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
