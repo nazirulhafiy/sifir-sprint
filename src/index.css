@@ -141,6 +141,13 @@ body {
   transition: box-shadow 80ms ease;
 }
 
+/* Pad buttons: center label in the fixed hit box (face still translates on press). */
+.press:has(> .pad-face) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .press .pad-face {
   display: block;
   transition: transform 80ms ease;
