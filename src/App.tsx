@@ -563,23 +563,24 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative mt-5 mb-3 flex min-h-0 flex-1 flex-col px-4 pt-6 pb-5 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-4 mb-3 flex min-h-0 flex-1 flex-col px-4 pt-5 pb-4 text-center ${fill}`}
     >
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
           key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
-          className="pop text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl"
+          data-testid="equation"
+          className="pop text-[clamp(2.25rem,8vh,3.75rem)] font-bold leading-none tracking-tight tabular"
         >
           {soalan.a} <span className="text-pink">×</span> {soalan.b}
         </p>
+        <p
+          data-testid="input"
+          className="ink wonky-sm relative z-10 shrink-0 min-h-14 min-w-24 self-center bg-butter px-4 text-5xl font-bold tabular"
+        >
+          {input || '?'}
+        </p>
       </div>
-      <p
-        data-testid="input"
-        className="ink wonky-sm relative z-10 mt-4 mb-[-0.65rem] shrink-0 min-h-14 min-w-24 self-center bg-butter px-4 text-5xl font-bold tabular"
-      >
-        {input || '?'}
-      </p>
     </section>
   )
 }
