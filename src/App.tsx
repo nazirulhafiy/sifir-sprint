@@ -338,8 +338,8 @@ export default function App() {
   return (
     <div className="sky-stage">
       <CartoonBackdrop />
-      <div className="stage mx-auto flex min-h-svh w-full max-w-md flex-col px-4 pb-[max(5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
-      <div className="mb-1 flex items-center justify-end gap-2">
+      <div className="stage mx-auto flex h-svh max-h-svh w-full max-w-md flex-col overflow-hidden px-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+4.5rem))] pt-[max(1rem,env(safe-area-inset-top))]">
+      <div className="mb-1 flex shrink-0 items-center justify-end gap-2">
         {screen !== 'mula' && <BaruButton onBaru={keMula} />}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
       </div>
@@ -402,7 +402,7 @@ function MulaScreen({
     <div
       key={landingPulse}
       data-testid="landing"
-      className="flex flex-1 flex-col items-center justify-center text-center"
+      className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto text-center"
     >
       <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cream">
         KrackedDevs · Sekolah
@@ -483,8 +483,8 @@ function PlayScreen({
 }) {
   const low = seconds <= 10
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between gap-3 pt-1">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <header className="flex shrink-0 items-center justify-between gap-3 pt-1">
         <div className="ink wonky-sm bg-navy px-3 py-2 text-left text-cream">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gold">
             Sifir Sprint
@@ -509,29 +509,33 @@ function PlayScreen({
         </div>
       </header>
 
-      <QuestionCard
-        soalan={soalan}
-        input={input}
-        flash={flash}
-        pulseKey={roundPulse}
-        cue={cue}
-      />
-
-      <div key={roundPulse} className="mb-4 grid grid-cols-2 gap-2">
-        <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
-        <StatPill
-          label="Streak"
-          value={stats.streak}
-          hint={stats.streak >= 3 ? '×2 mata' : undefined}
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+        <QuestionCard
+          soalan={soalan}
+          input={input}
+          flash={flash}
+          pulseKey={roundPulse}
+          cue={cue}
         />
+
+        <div key={roundPulse} className="mb-4 grid shrink-0 grid-cols-2 gap-2">
+          <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
+          <StatPill
+            label="Streak"
+            value={stats.streak}
+            hint={stats.streak >= 3 ? '×2 mata' : undefined}
+          />
+        </div>
       </div>
 
-      <NumberPad
-        disabled={locked || seconds <= 0}
-        onDigit={onDigit}
-        onPadam={onPadam}
-        onJawab={onJawab}
-      />
+      <div className="shrink-0">
+        <NumberPad
+          disabled={locked || seconds <= 0}
+          onDigit={onDigit}
+          onPadam={onPadam}
+          onJawab={onJawab}
+        />
+      </div>
     </div>
   )
 }
@@ -549,7 +553,7 @@ function TamatScreen({
   const sempurna = stats.salah === 0 && stats.betul > 0
   const rekodTerbaik = stats.markah > 0 && stats.markah === terbaik
   return (
-    <div className="flex flex-1 flex-col items-center justify-center text-center">
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto text-center">
       <article
         data-testid="masa-tamat"
         className="board wonky pop w-full bg-cream text-ink"
@@ -629,7 +633,7 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative my-5 flex flex-1 flex-col items-center justify-center px-4 py-6 text-center ${fill}`}
+      className={`ink-thick wonky relative my-5 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-6 text-center ${fill}`}
     >
       {cue && (
         <p
