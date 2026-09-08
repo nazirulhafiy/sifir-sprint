@@ -470,7 +470,7 @@ function PlayScreen({
           flash={flash}
         />
 
-        <div className="mb-4 grid shrink-0 grid-cols-2 gap-2">
+        <div className="relative z-0 mb-4 grid shrink-0 grid-cols-2 gap-2 pt-5">
           <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
           <StatPill
             label="Streak"
@@ -563,7 +563,7 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative my-5 flex min-h-0 flex-1 flex-col px-4 py-6 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-5 mb-3 flex flex-1 flex-col px-4 pt-6 pb-5 text-center ${fill}`}
     >
       <div className="flex flex-1 flex-col items-center justify-center">
         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
@@ -576,7 +576,7 @@ function QuestionCard({
       </div>
       <p
         data-testid="input"
-        className="ink wonky-sm shrink-0 min-h-14 min-w-24 self-center bg-butter px-4 text-5xl font-bold tabular"
+        className="ink wonky-sm relative z-10 mt-4 mb-[-0.65rem] shrink-0 min-h-14 min-w-24 self-center bg-butter px-4 text-5xl font-bold tabular"
       >
         {input || '?'}
       </p>
