@@ -39,6 +39,31 @@ async function assertInputDoesNotCoverStreakLabel(page: Page) {
   ).toBe(true)
 }
 
+async function assertEquationDoesNotOverlapInput(page: Page) {
+  const equation = page.getByTestId('equation')
+  const input = page.getByTestId('input')
+
+  const equationBox = await equation.boundingBox()
+  const inputBox = await input.boundingBox()
+  expect(equationBox, 'equation should have a bounding box').not.toBeNull()
+  expect(inputBox, 'input chip should have a bounding box').not.toBeNull()
+
+  const overlapX =
+    Math.min(equationBox!.x + equationBox!.width, inputBox!.x + inputBox!.width) -
+    Math.max(equationBox!.x, inputBox!.x)
+  const overlapY =
+    Math.min(equationBox!.y + equationBox!.height, inputBox!.y + inputBox!.height) -
+    Math.max(equationBox!.y, inputBox!.y)
+
+  const gap = inputBox!.y - (equationBox!.y + equationBox!.height)
+
+  expect(
+    overlapX <= 0 || overlapY <= 0,
+    `equation and input chip must not overlap (overlapX=${overlapX}, overlapY=${overlapY}, gap=${gap})`,
+  ).toBe(true)
+  expect(gap, 'equation and input chip should have non-negative vertical gap').toBeGreaterThanOrEqual(0)
+}
+
 async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
   await page.setViewportSize({ width: vw, height: vh })
   await page.goto('./')
@@ -57,6 +82,7 @@ async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
   await assertFullyInViewport(streak, vw, vh, 'STREAK')
   await assertFullyInViewport(soalan, vw, vh, 'soalan')
   await assertInputDoesNotCoverStreakLabel(page)
+  await assertEquationDoesNotOverlapInput(page)
 }
 
 test.describe('play layout fits short iPhone viewports', () => {
