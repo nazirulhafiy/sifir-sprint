@@ -308,7 +308,7 @@ export default function App() {
   return (
     <div className="sky-stage">
       <CartoonBackdrop />
-      <div className="stage mx-auto flex h-svh max-h-svh w-full max-w-md flex-col overflow-hidden px-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+2.5rem))] pt-[max(1rem,env(safe-area-inset-top))]">
+      <div className="stage mx-auto flex h-svh max-h-svh w-full max-w-md flex-col overflow-hidden px-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-1 flex shrink-0 items-center justify-end gap-2">
         {screen === 'main' && <BaruButton onBaru={keMula} />}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
@@ -471,7 +471,7 @@ function PlayScreen({
         />
       </div>
 
-      <div className="relative z-0 mb-4 grid shrink-0 grid-cols-2 gap-2 pt-5">
+      <div className="relative z-0 mb-3 grid shrink-0 grid-cols-2 gap-2 pt-2">
         <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
         <StatPill
           label="Streak"
@@ -563,14 +563,14 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative mt-4 mb-4 flex min-h-0 flex-1 flex-col px-4 pt-5 pb-7 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-2 mb-2 flex min-h-0 flex-1 flex-col px-4 pt-4 pb-7 text-center ${fill}`}
     >
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-end gap-2 overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
           key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
           data-testid="equation"
-          className="pop text-[clamp(2.25rem,8vh,3.75rem)] font-bold leading-none tracking-tight tabular"
+          className="pop min-h-0 text-[clamp(2rem,5.5vh,3.75rem)] font-bold leading-none tracking-tight tabular"
         >
           {soalan.a} <span className="text-pink">×</span> {soalan.b}
         </p>
