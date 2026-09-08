@@ -18,8 +18,9 @@
 html,
 body,
 #root {
-  min-height: 100svh;
-  min-height: 100dvh;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
 }
 
 body {
@@ -42,8 +43,8 @@ body {
 
 .sky-stage {
   position: relative;
-  min-height: 100svh;
-  min-height: 100dvh;
+  height: 100svh;
+  max-height: 100svh;
   overflow: hidden;
   background:
     linear-gradient(#2a4fbf 0%, #4d89ff 42%, #ffc8a0 78%, #ff8fb3 100%);
