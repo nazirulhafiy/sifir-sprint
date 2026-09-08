@@ -469,15 +469,15 @@ function PlayScreen({
           input={input}
           flash={flash}
         />
+      </div>
 
-        <div className="relative z-0 mb-4 grid shrink-0 grid-cols-2 gap-2 pt-5">
-          <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
-          <StatPill
-            label="Streak"
-            value={stats.streak}
-            hint={stats.streak >= 3 ? '×2 mata' : undefined}
-          />
-        </div>
+      <div className="relative z-0 mb-4 grid shrink-0 grid-cols-2 gap-2 pt-5">
+        <StatPill label="Markah" value={stats.markah} accent={stats.streak >= 3} />
+        <StatPill
+          label="Streak"
+          value={stats.streak}
+          hint={stats.streak >= 3 ? '×2 mata' : undefined}
+        />
       </div>
 
       <div className="shrink-0">
@@ -563,9 +563,9 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative mt-5 mb-3 flex flex-1 flex-col px-4 pt-6 pb-5 text-center ${fill}`}
+      className={`ink-thick wonky relative mt-5 mb-3 flex shrink-0 flex-col px-4 pt-6 pb-5 text-center ${fill}`}
     >
-      <div className="flex flex-1 flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center">
         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
           key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
