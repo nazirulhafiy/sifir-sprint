@@ -92,6 +92,26 @@ async function assertInputChipShadowNotClipped(page: Page) {
   ).toBeGreaterThanOrEqual(6)
 }
 
+
+async function assertEquationFullyInsideSoalan(page: Page) {
+  const soalan = page.getByTestId('soalan')
+  const equation = page.getByTestId('equation')
+
+  const soalanBox = await soalan.boundingBox()
+  const equationBox = await equation.boundingBox()
+  expect(soalanBox, 'soalan should have a bounding box').not.toBeNull()
+  expect(equationBox, 'equation should have a bounding box').not.toBeNull()
+
+  const topOk = equationBox!.y >= soalanBox!.y - 0.5
+  const bottomOk =
+    equationBox!.y + equationBox!.height <= soalanBox!.y + soalanBox!.height + 0.5
+
+  expect(
+    topOk && bottomOk,
+    `equation must be fully visible inside soalan card (eq top=${equationBox!.y.toFixed(2)}, bottom=${(equationBox!.y + equationBox!.height).toFixed(2)}; card top=${soalanBox!.y.toFixed(2)}, bottom=${(soalanBox!.y + soalanBox!.height).toFixed(2)})`,
+  ).toBe(true)
+}
+
 async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
   await page.setViewportSize({ width: vw, height: vh })
   await page.goto('./')
@@ -109,6 +129,7 @@ async function assertPlayLayoutFits(page: Page, vw: number, vh: number) {
   await assertFullyInViewport(markah, vw, vh, 'MARKAH')
   await assertFullyInViewport(streak, vw, vh, 'STREAK')
   await assertFullyInViewport(soalan, vw, vh, 'soalan')
+  await assertEquationFullyInsideSoalan(page)
   await assertInputDoesNotCoverStreakLabel(page)
   await assertEquationDoesNotOverlapInput(page)
   await assertInputChipShadowNotClipped(page)
