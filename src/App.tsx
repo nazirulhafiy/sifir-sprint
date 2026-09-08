@@ -20,7 +20,6 @@ import {
 import { MuteToggle } from './MuteToggle.tsx'
 import { NumberPad } from './NumberPad.tsx'
 import { usePress } from './press.ts'
-import { muatStor, simpanPusingan, type Stor } from './storage.ts'
 
 type Screen = 'mula' | 'main' | 'tamat'
 type Flash = 'betul' | 'salah' | null
@@ -52,7 +51,6 @@ export default function App() {
   const [stats, setStats] = useState<Stats>(emptyStats)
   const [flash, setFlash] = useState<Flash>(null)
   const [locked, setLocked] = useState(false)
-  const [stor, setStor] = useState<Stor>(() => muatStor())
   const [roundId, setRoundId] = useState(0)
   const [bisu, setBisu] = useState(() => muatBisu())
   const [cue, setCue] = useState<string | null>(null)
@@ -61,7 +59,6 @@ export default function App() {
 
   const statsRef = useRef(stats)
   const soalanRef = useRef(soalan)
-  const savedRef = useRef(false)
   const inputRef = useRef(input)
   const secondsRef = useRef(seconds)
   const lockedRef = useRef(false)
@@ -136,7 +133,6 @@ export default function App() {
         bumpTick()
         cancelPendingJawab()
         bunyiTamat()
-        persistRound()
         setScreen('tamat')
         return
       }
@@ -174,24 +170,9 @@ export default function App() {
     tetapkanBisu(next)
   }
 
-  function persistRound() {
-    if (savedRef.current) return
-    const latest = statsRef.current
-    setStor(
-      simpanPusingan({
-        markah: latest.markah,
-        betul: latest.betul,
-        salah: latest.salah,
-        masa: Date.now(),
-      }),
-    )
-    savedRef.current = true
-  }
-
   function resetRoundState() {
     bumpTick()
     cancelPendingJawab()
-    savedRef.current = false
     const next = emptyStats()
     statsRef.current = next
     const first = janaSoalan(0)
@@ -221,9 +202,6 @@ export default function App() {
   }
 
   function keMula() {
-    if (screen === 'tamat') {
-      persistRound()
-    }
     resetRoundState()
     setLandingPulse((n) => n + 1)
     setScreen('mula')
@@ -344,7 +322,7 @@ export default function App() {
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
       </div>
       {screen === 'mula' && (
-        <MulaScreen terbaik={stor.terbaik} landingPulse={landingPulse} onMula={mula} />
+        <MulaScreen landingPulse={landingPulse} onMula={mula} />
       )}
       {screen === 'main' && (
         <PlayScreen
@@ -364,7 +342,6 @@ export default function App() {
       {screen === 'tamat' && (
         <TamatScreen
           stats={stats}
-          terbaik={stor.terbaik}
           onLagiSatu={() => mula({ announce: true })}
         />
       )}
@@ -389,11 +366,9 @@ function BaruButton({ onBaru }: { onBaru: () => void }) {
 }
 
 function MulaScreen({
-  terbaik,
   landingPulse,
   onMula,
 }: {
-  terbaik: number
   landingPulse: number
   onMula: () => void
 }) {
@@ -418,7 +393,7 @@ function MulaScreen({
             Soalan → jawab → markah → streak → lagi satu.
           </p>
         </header>
-        <div className="board-rule grid grid-cols-3">
+        <div className="board-rule grid grid-cols-2">
           <div className="board-col px-2 py-4">
             <p className="text-3xl font-bold leading-none tabular sm:text-4xl">
               {getMasaSaat()}s
@@ -431,14 +406,6 @@ function MulaScreen({
             <p className="text-3xl font-bold leading-none sm:text-4xl">1–12</p>
             <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
               Jadual darab
-            </p>
-          </div>
-          <div className="board-col px-2 py-4">
-            <p className="text-3xl font-bold leading-none tabular sm:text-4xl">
-              {terbaik}
-            </p>
-            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest">
-              Terbaik
             </p>
           </div>
         </div>
@@ -542,16 +509,13 @@ function PlayScreen({
 
 function TamatScreen({
   stats,
-  terbaik,
   onLagiSatu,
 }: {
   stats: Stats
-  terbaik: number
   onLagiSatu: () => void
 }) {
   const press = usePress(onLagiSatu)
   const sempurna = stats.salah === 0 && stats.betul > 0
-  const rekodTerbaik = stats.markah > 0 && stats.markah === terbaik
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto text-center">
       <article
@@ -585,18 +549,6 @@ function TamatScreen({
               Sempurna — tiada tersalah!
             </p>
           )}
-          {rekodTerbaik && (
-            <p className="mt-3 inline-block bg-navy px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gold">
-              Rekod terbaik
-            </p>
-          )}
-        </div>
-        <div
-          data-testid="stat-terbaik"
-          className={`board-rule px-4 py-4 ${rekodTerbaik ? 'bg-gold' : 'bg-cream'}`}
-        >
-          <p className="text-[10px] font-bold uppercase tracking-widest">Terbaik</p>
-          <p className="mt-1 text-3xl font-bold leading-none tabular">{terbaik}</p>
         </div>
         <button
           type="button"
@@ -633,7 +585,7 @@ function QuestionCard({
       data-testid="soalan"
       data-a={soalan.a}
       data-b={soalan.b}
-      className={`ink-thick wonky relative my-5 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-6 text-center ${fill}`}
+      className={`ink-thick wonky relative my-5 flex min-h-0 flex-1 flex-col px-4 py-6 text-center ${fill}`}
     >
       {cue && (
         <p
@@ -643,16 +595,18 @@ function QuestionCard({
           {cue}
         </p>
       )}
-      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
-      <p
-        key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}-${pulseKey}`}
-        className="pop text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl"
-      >
-        {soalan.a} <span className="text-pink">×</span> {soalan.b}
-      </p>
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
+        <p
+          key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}-${pulseKey}`}
+          className="pop text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl"
+        >
+          {soalan.a} <span className="text-pink">×</span> {soalan.b}
+        </p>
+      </div>
       <p
         data-testid="input"
-        className="ink wonky-sm mt-6 min-h-14 min-w-24 bg-butter px-4 text-5xl font-bold tabular"
+        className="ink wonky-sm shrink-0 min-h-14 min-w-24 self-center bg-butter px-4 text-5xl font-bold tabular"
       >
         {input || '?'}
       </p>
