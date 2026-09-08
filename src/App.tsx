@@ -318,7 +318,7 @@ export default function App() {
       <CartoonBackdrop />
       <div className="stage mx-auto flex h-svh max-h-svh w-full max-w-md flex-col overflow-hidden px-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+2.5rem))] pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-1 flex shrink-0 items-center justify-end gap-2">
-        {screen !== 'mula' && <BaruButton onBaru={keMula} />}
+        {screen === 'main' && <BaruButton onBaru={keMula} />}
         <MuteToggle bisu={bisu} onToggle={tukarBisu} />
       </div>
       {screen === 'mula' && (
@@ -525,10 +525,7 @@ function TamatScreen({
         className="board wonky pop w-full bg-cream text-ink"
       >
         <header className="bg-navy px-4 py-6 text-cream sm:py-7">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">
-            Pusingan ini
-          </p>
-          <h1 className="mt-2 text-5xl font-bold leading-[0.9] tracking-tight sm:text-6xl">
+          <h1 className="text-5xl font-bold leading-[0.9] tracking-tight sm:text-6xl">
             Masa tamat!
           </h1>
         </header>
