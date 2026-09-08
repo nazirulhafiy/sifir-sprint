@@ -452,11 +452,13 @@ function PlayScreen({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex shrink-0 items-center justify-between gap-3 pt-1">
-        <div className="ink wonky-sm bg-navy px-3 py-2 text-left text-cream">
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gold">
+        <div className="flex min-h-[88px] min-w-0 flex-1 flex-col justify-center ink wonky-sm bg-navy px-4 py-3 text-left text-cream">
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-gold sm:text-base">
             Sifir Sprint
           </p>
-          <p className="text-xs font-semibold text-cream/80">Soalan · Jawab · Lagi</p>
+          <p className="mt-0.5 text-sm font-semibold text-cream/80 sm:text-base">
+            Soalan · Jawab · Lagi
+          </p>
         </div>
         <div
           key={roundPulse}
@@ -546,7 +548,7 @@ function TamatScreen({
           </p>
           {sempurna && (
             <p className="mt-2 text-sm font-semibold text-navy">
-              Sempurna — tiada tersalah!
+              Sempurna!
             </p>
           )}
         </div>
