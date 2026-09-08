@@ -2,7 +2,7 @@
 
 60s SPM times-tables race — KrackedDevs Sekolah Edition.
 
-**The loop:** soalan → jawab → markah → streak → lagi satu.
+**The loop:** soalan → jawab → markah → streak → Try Lagi.
 
 A 60-second jadual darab sprint. Questions are generated on the fly (1–12 × 1–12). Correct answers grow a streak; 3+ in a row doubles points. Misses show as betul · salah on Masa tamat.
 
@@ -31,11 +31,11 @@ Optional short practice: `http://localhost:5173/sifir-sprint/?masa=15`
 ## Screens
 
 1. **Play** — big 60s timer, soalan, number pad, live markah + streak
-2. **Masa tamat** — terminal end screen: this-round markah, betul · salah; **Lagi Satu** to replay
+2. **Masa tamat** — terminal end screen: this-round markah, betul · salah; **Try Lagi** to replay
 
 Mute sits in the top-right (alone on Masa tamat; with **Baru** during play). First visit starts with sound on; the first **Mula** tap (or a pad/key) unlocks audio and starts the BGM loop when mute is off. Preference is saved in `localStorage`.
 
-After 60s: **Masa tamat!** **Lagi Satu** starts a fresh round without a page reload. **Baru** (play only) leaves the round and returns to the title screen — press **Mula** for a fresh race.
+After 60s: **Masa tamat!** **Try Lagi** starts a fresh round without a page reload. **Baru** (play only) leaves the round and returns to the title screen — press **Mula** for a fresh race.
 
 ## Ship
 
