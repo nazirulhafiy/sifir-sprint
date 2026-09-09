@@ -88,8 +88,10 @@ function onContextState() {
   if (!isRunning(ctx)) return
   unlocked = true
   if (muted) return
-  if (!loopOn) startLoop()
-  else schedule()
+  // Only reschedule an already-running loop. Do not auto-start — otherwise
+  // BGM can resurrect on Masa Tamat after hentikanBgm() when the context
+  // flaps. Explicit start stays in hidupkanAudio / tetapkanBisu (unmute).
+  if (loopOn) schedule()
 }
 
 function ensure() {
@@ -139,6 +141,11 @@ function stopLoop() {
     window.clearInterval(timer)
     timer = null
   }
+}
+
+/** Stop BGM loop; safe if already stopped. Does not mute SFX. */
+export function hentikanBgm() {
+  stopLoop()
 }
 
 export async function hidupkanAudio() {
