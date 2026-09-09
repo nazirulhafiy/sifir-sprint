@@ -4,6 +4,7 @@ import {
   bunyiBetul,
   bunyiSalah,
   bunyiTamat,
+  hentikanBgm,
   hidupkanAudio,
   muatBisu,
   tetapkanBisu,
@@ -131,6 +132,7 @@ export default function App() {
         bumpTick()
         cancelPendingJawab()
         bunyiTamat()
+        hentikanBgm()
         setScreen('tamat')
         return
       }
