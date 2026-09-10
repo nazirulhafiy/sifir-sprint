@@ -196,6 +196,7 @@ export default function App() {
   }
 
   function keMula() {
+    hentikanBgm()
     resetRoundState()
     setLandingPulse((n) => n + 1)
     setScreen('mula')
