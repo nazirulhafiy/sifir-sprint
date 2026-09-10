@@ -382,7 +382,7 @@ function MulaScreen({
             Sprint
           </h1>
           <p className="mx-auto mt-4 max-w-xs text-sm font-semibold leading-relaxed text-navy">
-            Soalan → jawab → markah → streak → Try Lagi.
+            Soalan → Jawab → Try Lagi.
           </p>
         </header>
         <div className="board-rule grid grid-cols-2">
@@ -445,7 +445,7 @@ function PlayScreen({
             Sifir Sprint
           </p>
           <p className="mt-0.5 text-sm font-semibold text-cream/80 sm:text-base">
-            Soalan · Jawab · Lagi
+            Soalan · Jawab · Try Lagi
           </p>
         </div>
         <div
