@@ -2,9 +2,9 @@
 <html lang="ms">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260908" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260908" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260908" />
+    <link rel="icon" type="image/svg+xml" href="/sifir/favicon.svg?v=20260908" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/sifir/favicon-32.png?v=20260908" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/sifir/apple-touch-icon.png?v=20260908" />
     <meta name="msapplication-TileColor" content="#16224a" />
     <meta
       name="viewport"
@@ -16,17 +16,17 @@
       content="Sifir Sprint — Soalan → Jawab → Try Lagi."
     />
     <title>Sifir Sprint</title>
-    <link rel="canonical" href="https://polah.app/sifir-sprint/" />
+    <link rel="canonical" href="https://polah.app/sifir/" />
     <meta property="og:title" content="Sifir Sprint" />
     <meta
       property="og:description"
       content="Soalan → Jawab → Try Lagi."
     />
-    <meta property="og:image" content="https://polah.app/sifir-sprint/og.png?v=20260911i" />
+    <meta property="og:image" content="https://polah.app/sifir/og.png?v=20260911j" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Sifir Sprint — Soalan → Jawab → Try Lagi" />
-    <meta property="og:url" content="https://polah.app/sifir-sprint/" />
+    <meta property="og:url" content="https://polah.app/sifir/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Sifir Sprint" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -35,18 +35,18 @@
       name="twitter:description"
       content="Soalan → Jawab → Try Lagi."
     />
-    <meta name="twitter:image" content="https://polah.app/sifir-sprint/og.png?v=20260911i" />
+    <meta name="twitter:image" content="https://polah.app/sifir/og.png?v=20260911j" />
     <script>
       (function () {
         var host = location.hostname
-        if (
-          (host === 'hafiy.my' || host === 'nazirulhafiy.github.io') &&
-          location.pathname.indexOf('/sifir-sprint') === 0
-        ) {
-          location.replace(
-            'https://polah.app' + location.pathname + location.search + location.hash,
-          )
+        if (host !== 'hafiy.my' && host !== 'nazirulhafiy.github.io') return
+        var path = location.pathname
+        if (path === '/sifir-sprint' || path.indexOf('/sifir-sprint/') === 0) {
+          path = path.replace(/^\/sifir-sprint/, '/sifir') || '/sifir/'
+        } else if (path !== '/sifir' && path.indexOf('/sifir/') !== 0) {
+          return
         }
+        location.replace('https://polah.app' + path + location.search + location.hash)
       })()
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

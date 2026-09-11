@@ -8,7 +8,7 @@ A 60-second jadual darab sprint. Questions are generated on the fly (1–12 × 1
 
 ## Play
 
-Open **https://polah.app/sifir-sprint/**
+Open **https://polah.app/sifir/**
 
 ## Run locally
 
@@ -17,16 +17,16 @@ npm install
 npm run dev
 ```
 
-Vite `base` is `/sifir-sprint/`, so open `http://localhost:5173/sifir-sprint/`.
+Vite `base` is `/sifir/`, so open `http://localhost:5173/sifir/`.
 
 ```bash
 npm run build
 npm run preview
 ```
 
-Preview is at `http://localhost:4173/sifir-sprint/`.
+Preview is at `http://localhost:4173/sifir/`.
 
-Optional short practice: `http://localhost:5173/sifir-sprint/?masa=15`
+Optional short practice: `http://localhost:5173/sifir/?masa=15`
 
 ## Screens
 
@@ -39,9 +39,9 @@ After 60s: **Masa tamat!** **Try Lagi** starts a fresh round without a page relo
 
 ## Ship
 
-Public URL is only **https://polah.app/sifir-sprint/** (Cloudflare proxies `/sifir-sprint/`; origin can stay GitHub Pages). Vite `base` stays `/sifir-sprint/`.
+Public URL is only **https://polah.app/sifir/** (Cloudflare proxies `/sifir/`; origin can stay GitHub Pages). Vite `base` is `/sifir/`. Cloudflare proxies `polah.app/sifir*` and rewrites to origin `hafiy.my/sifir-sprint*` (repo Pages path). Old `/sifir-sprint` redirects to `/sifir`.
 
 Old hosts (`hafiy.my`, `nazirulhafiy.github.io`) client-redirect to polah.app and keep the path/query/hash.
 
 - **GitHub Pages:** the `Deploy GitHub Pages` workflow builds `dist` and publishes `main` via `actions/deploy-pages`. In the repo settings, set Pages → Source to **GitHub Actions**.
-- **Vercel:** import the repo (Vite + `vercel.json`). The app is served under `/sifir-sprint/`.
+- **Vercel:** import the repo (Vite + `vercel.json`). The app is served under `/sifir/`.
