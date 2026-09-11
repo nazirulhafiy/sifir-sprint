@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test'
 
-const baseURL = 'http://127.0.0.1:4173/sifir-sprint/'
+const baseURL = 'http://127.0.0.1:4173/sifir/'
 
 export default defineConfig({
   testDir: './e2e',
