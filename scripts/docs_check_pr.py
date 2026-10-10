@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import fnmatch
 import json
 import os
 import subprocess
@@ -11,11 +10,7 @@ import sys
 from pathlib import Path
 
 # Watched paths (keep in sync with docs/ci-docs-check.md and docs-check.yml).
-WATCH_GLOBS = (
-    "src/**/*.css",
-    "src/**/*.tsx",
-    "src/**/*.ts",
-)
+WATCH_SUFFIXES_IN_SRC = (".css", ".tsx", ".ts")
 WATCH_EXACT = (
     "vite.config.ts",
     "index.html",
@@ -39,7 +34,9 @@ def is_watched(path: str) -> bool:
     normalized = normalize_path(path)
     if normalized in WATCH_EXACT:
         return True
-    return any(fnmatch.fnmatch(normalized, pattern) for pattern in WATCH_GLOBS)
+    if normalized.startswith("src/"):
+        return normalized.endswith(WATCH_SUFFIXES_IN_SRC)
+    return False
 
 
 def is_docs_change(path: str) -> bool:
