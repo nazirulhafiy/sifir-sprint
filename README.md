@@ -39,9 +39,14 @@ After 60s: **Masa tamat!** **Try Lagi** starts a fresh round without a page relo
 
 ## Ship
 
-Public URL is only **https://polah.app/sifir/** (Cloudflare proxies `/sifir/`; origin can stay GitHub Pages). Vite `base` is `/sifir/`. Cloudflare proxies `polah.app/sifir*` and rewrites to origin `hafiy.my/sifir-sprint*` (repo Pages path). Old `/sifir-sprint` redirects to `/sifir`.
+**Play URL:** **https://polah.app/sifir/** only. There is no production Vercel deployment for this repo.
 
-Old hosts (`hafiy.my`, `nazirulhafiy.github.io`) client-redirect to polah.app and keep the path/query/hash.
+| Layer | What happens |
+| --- | --- |
+| **Build & origin** | Push to `main` runs the `Deploy GitHub Pages` workflow (`.github/workflows/pages.yml`): `npm ci` → `npm run build` → `actions/deploy-pages` publishes `dist`. In repo settings, set Pages → Source to **GitHub Actions**. |
+| **Vite `base`** | `/sifir/` in `vite.config.ts` — assets and router-less paths must stay aligned with the public path. |
+| **Cloudflare (polah.app)** | Proxies `polah.app/sifir*` and rewrites to the GitHub Pages origin (`hafiy.my/sifir-sprint*`). Legacy `/sifir-sprint` redirects to `/sifir`. |
 
-- **GitHub Pages:** the `Deploy GitHub Pages` workflow builds `dist` and publishes `main` via `actions/deploy-pages`. In the repo settings, set Pages → Source to **GitHub Actions**.
-- **Vercel:** import the repo (Vite + `vercel.json`). The app is served under `/sifir/`.
+Old hosts (`hafiy.my`, `nazirulhafiy.github.io`) client-redirect to polah.app and keep path/query/hash.
+
+Docs: [`AGENTS.md`](AGENTS.md), [`docs/design.md`](docs/design.md), [`docs/ci-docs-check.md`](docs/ci-docs-check.md) (PR **docs check** workflow).
