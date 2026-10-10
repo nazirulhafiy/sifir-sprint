@@ -50,3 +50,9 @@ After 60s: **Masa tamat!** **Try Lagi** starts a fresh round without a page relo
 Old hosts (`hafiy.my`, `nazirulhafiy.github.io`) client-redirect to polah.app and keep path/query/hash.
 
 Docs: [`AGENTS.md`](AGENTS.md), [`docs/design.md`](docs/design.md), [`docs/ci-docs-check.md`](docs/ci-docs-check.md) (PR **docs check** workflow).
+
+## Related repos
+
+- [nazirulhafiy/polah](https://github.com/nazirulhafiy/polah) — TanStack Start app on Vercel behind Cloudflare, public at https://polah.app
+- [nazirulhafiy/cat-pinball-game](https://github.com/nazirulhafiy/cat-pinball-game) — Cat Balls, GitHub Pages at https://hafiy.my/cat-pinball-game, proxied at https://polah.app/balls
+- [nazirulhafiy/kracked-quest](https://github.com/nazirulhafiy/kracked-quest) — GitHub Pages, public at https://polah.app/kracked
