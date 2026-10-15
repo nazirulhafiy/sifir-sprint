@@ -56,3 +56,9 @@ BGM stops when the round ends; **Try Lagi** can start it again if sound is on.
 - Wrong answers break streak and count toward salah on the tamat card.
 
 Logic: [`src/game.ts`](../src/game.ts).
+
+## Analytics
+
+- Google Analytics 4: measurement ID `G-B3BZXWWDH9` (the shared polah.app property), tag in `<head>` of `index.html`. Served at polah.app/sifir/.
+- Cloudflare Web Analytics: polah.app is proxied by Cloudflare with Web Analytics auto-install enabled, so the beacon is injected at the edge; no snippet in code.
+- No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com` and `*.google-analytics.com`.
