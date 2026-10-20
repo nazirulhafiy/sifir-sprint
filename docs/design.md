@@ -59,6 +59,32 @@ Logic: [`src/game.ts`](../src/game.ts).
 
 ## Analytics
 
-- Google Analytics 4: measurement ID `G-B3BZXWWDH9` (the shared polah.app property), tag in `<head>` of `index.html`. Served at polah.app/sifir/.
-- Cloudflare Web Analytics: polah.app is proxied by Cloudflare with Web Analytics auto-install enabled, so the beacon is injected at the edge; no snippet in code.
-- No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com` and `*.google-analytics.com`.
+IDs, the internal cookie, and the Cloudflare `spa` flag live in [`data/analytics.json`](../data/analytics.json) (kit shape `version: 1`, same fields as the sarawak.news registry). [`scripts/analytics_loader.py`](../scripts/analytics_loader.py) renders **one** inline `<script data-sifir-analytics-loader>`. The Vite plugin in [`vite.config.ts`](../vite.config.ts) injects that script into `<head>` during `npm run build`, which is the Pages `dist/` this repo ships. [`scripts/check_analytics_dist.py`](../scripts/check_analytics_dist.py) fails the build when a page has zero loaders, two loaders, a GA4 id or CF token that is not in the registry, or a cookie name that is not the registry cookie.
+
+| Field | Value |
+| --- | --- |
+| `version` | `1` |
+| `internal_cookie` | `sifir_internal` |
+| `spa` | `true` |
+| Primary host | `polah.app` |
+| `aliases` | `["www.polah.app"]` |
+| `ga4_measurement_id` | `G-B3BZXWWDH9` |
+| `cf_beacon_token` | `cd795175569a442ca30e7c08a6295f9f` |
+| `legacy_internal_cookies` | `[]` |
+
+Kept from this site, not copied from sarawak.news:
+
+- **GA4** `G-B3BZXWWDH9` is the measurement id this repo already shipped in `index.html` (the shared polah.app property). The id did not change; only the loader around it did.
+- **CF token** `cd795175569a442ca30e7c08a6295f9f` is the token Cloudflare already injects on `https://polah.app/sifir/` (`data-cf-beacon`). There was no token in the repo. The sarawak hub and bantuan tokens are different sites and were not copied.
+- **Cookie** `sifir_internal` is new. This repo had no `?internal=1` cookie (the GA tag was unconditional, and the only query handling is the hafiy.my / github.io redirect, which already keeps `location.search`). `sn_internal` belongs to the sarawak.news kit, not to polah.app, so it was not reused. `legacy_internal_cookies` is empty because there is no older name to honour.
+
+Loader behaviour:
+
+1. **Production host gate** — runs only when `location.hostname` is `polah.app` or `www.polah.app`. It does not load on localhost, `hafiy.my`, `*.github.io`, or preview hosts. The old unconditional gtag tag in `index.html` is gone.
+2. **`?internal=1`** — sets `sifir_internal=1` (`path=/`, `max-age=31536000`, `SameSite=Lax`, plus `Secure` on HTTPS). `?internal=0` clears that cookie (and any future `legacy_internal_cookies` name). While the cookie is `=1`, `gtag('config', 'G-B3BZXWWDH9', { traffic_type: 'internal' })` and this loader does not add the Cloudflare beacon. Agents opening the live site use `?internal=1` (see `AGENTS.md`). The hafiy.my redirect still forwards the query string, so `?internal=1` survives the hop to polah.app.
+3. **Google Analytics 4** — id from the registry, loaded after the host gate.
+4. **Cloudflare Web Analytics** — the loader embeds the same zone token the edge already injects, with `spa: true` (this app is one Vite page; the edge snippet uses `spa: 2`, which is not the kit’s boolean). On polah.app the zone’s auto-install still appends its own beacon at the end of `<body>`. That second beacon is outside this repo (the proxy worker is not here). Until auto-install is turned off for this path, production can load the beacon twice; `?internal=1` skips only the loader’s copy.
+
+CI: `python3 scripts/check_analytics_dist.py` runs in `.github/workflows/analytics-dist.yml` on pull requests (build + check, no deploy) and in the `build` job of `.github/workflows/pages.yml` after `npm run build`, before the Pages artifact upload.
+
+No Content-Security-Policy is set; if one is added, allow `www.googletagmanager.com`, `*.google-analytics.com`, and `static.cloudflareinsights.com`.

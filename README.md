@@ -49,6 +49,10 @@ After 60s: **Masa tamat!** **Try Lagi** starts a fresh round without a page relo
 
 Old hosts (`hafiy.my`, `nazirulhafiy.github.io`) client-redirect to polah.app and keep path/query/hash.
 
+## Analytics
+
+GA4 id, Cloudflare Web Analytics token, host, and the `sifir_internal` cookie live in `data/analytics.json`. `npm run build` injects one `data-sifir-analytics-loader` script into `dist/index.html`. Trackers run only on `polah.app` / `www.polah.app`. Open the live site with `?internal=1` for agent/QA visits (see `AGENTS.md`). CI runs `python3 scripts/check_analytics_dist.py` on the Pages `dist/` (pull requests, and again in the Pages build job before upload). Measurement id `G-B3BZXWWDH9` is unchanged. The CF token is the one already injected on `polah.app/sifir/`. Details: [docs/design.md](docs/design.md) under “Analytics”.
+
 Docs: [`AGENTS.md`](AGENTS.md), [`docs/design.md`](docs/design.md), [`docs/ci-docs-check.md`](docs/ci-docs-check.md) (PR **docs check** workflow).
 
 ## Related repos

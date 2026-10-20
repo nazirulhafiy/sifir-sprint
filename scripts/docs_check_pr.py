@@ -16,6 +16,13 @@ WATCH_EXACT = (
     "index.html",
     "public/favicon.svg",
     "public/apple-touch-icon.svg",
+    "data/analytics.json",
+    "scripts/analytics_registry.py",
+    "scripts/analytics_loader.py",
+    "scripts/check_analytics_dist.py",
+    "scripts/docs_check_pr.py",
+    ".github/workflows/pages.yml",
+    ".github/workflows/analytics-dist.yml",
 )
 
 DOCS_PREFIX = "docs/"
@@ -27,7 +34,11 @@ FAILURE_MESSAGE = (
 
 
 def normalize_path(path: str) -> str:
-    return path.replace("\\", "/").lstrip("./")
+    """Normalize a git path. Strip a leading ./ only; keep `.github/`."""
+    normalized = path.replace("\\", "/").lstrip("/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized
 
 
 def is_watched(path: str) -> bool:

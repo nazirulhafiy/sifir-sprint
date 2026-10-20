@@ -2,6 +2,9 @@
 # - src/**/*.css, src/**/*.tsx, src/**/*.ts
 # - vite.config.ts, index.html
 # - public/favicon.svg, public/apple-touch-icon.svg
+# - data/analytics.json
+# - scripts/analytics_registry.py, scripts/analytics_loader.py, scripts/check_analytics_dist.py, scripts/docs_check_pr.py
+# - .github/workflows/pages.yml, .github/workflows/analytics-dist.yml
 name: docs check
 
 on:
