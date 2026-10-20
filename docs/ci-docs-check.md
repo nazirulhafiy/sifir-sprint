@@ -16,9 +16,15 @@ Watched paths (also in [`scripts/docs_check_pr.py`](../scripts/docs_check_pr.py)
 | Styles & UI | `src/**/*.css`, `src/**/*.tsx`, `src/**/*.ts` |
 | App shell & config | `index.html`, `vite.config.ts` |
 | Brand icons | `public/favicon.svg`, `public/apple-touch-icon.svg` |
+| Analytics registry & loader | `data/analytics.json`, `scripts/analytics_registry.py`, `scripts/analytics_loader.py`, `scripts/check_analytics_dist.py` |
+| Docs check script | `scripts/docs_check_pr.py` |
+| Analytics CI | `.github/workflows/pages.yml`, `.github/workflows/analytics-dist.yml` |
+
+Paths are matched after stripping a leading `./`. A `.github/` prefix is kept
+(it is not treated as a dot-slash).
 
 **Not watched:** `e2e/`, `package.json` / lockfile-only churn, docs-only PRs, and
-workflow edits that do not touch the paths above.
+workflow edits other than the two analytics workflows listed above.
 
 ## Escape hatch
 

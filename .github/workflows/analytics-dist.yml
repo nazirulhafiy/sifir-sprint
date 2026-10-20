@@ -1,0 +1,25 @@
+# Dist check for pull requests. Does not deploy Pages.
+# The ship path is .github/workflows/pages.yml, which runs the same check
+# after `npm run build` and before the Pages artifact upload.
+name: Analytics dist check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  analytics-dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: python3 -m unittest discover -s tests -v
+      - run: npm run build
+      - name: Check analytics dist against registry
+        run: python3 scripts/check_analytics_dist.py
