@@ -40,6 +40,30 @@ Mute sits alone top-right on this screen.
 
 Cream board with butter header, 60s / 1–12 summary, gold **Mula** CTA. First **Mula** (or pad/key) unlocks Web Audio when not muted.
 
+## Layout check
+
+`npm run layout-check` loads the production build (`vite preview` of `dist/`) in Chromium and WebKit. CI runs it from [`.github/workflows/layout-check.yml`](../.github/workflows/layout-check.yml) on pull requests. It does not deploy.
+
+Viewports: **375×667**, **390×844**, **390×680**, **1280×800**. Each is checked in light and dark, on the title (`mula`), play, and **Masa tamat** screens.
+
+The check fails when:
+
+- the page has horizontal overflow (`scrollWidth` greater than `clientWidth` on the document)
+- two `[data-box]` elements overlap (a box that contains another is not an overlap; boxes are border boxes)
+- a `[data-box]` element is clipped: `scrollHeight` or `scrollWidth` is greater than its client box (by more than 1px) on an axis whose overflow is not `visible`, or a clipping ancestor cuts through its border box
+- a `[data-one-line]` element wraps onto more than one line
+
+`data-box` / `data-one-line` are only on the pieces that broke in the short-Safari fixes (question card clipped, `?` chip over the equation or over Markah/Streak). They do not change layout:
+
+| Piece | Markers |
+| --- | --- |
+| Question card (`data-testid="soalan"`) | `data-box` |
+| Equation / `?` stack (the column inside the card, the equation, and the `?` chip) | `data-box` on all three; `data-one-line` on the equation and the chip |
+| Markah and Streak pills | `data-box` on each pill; `data-one-line` on each label |
+| Masa timer | `data-box` on the orb; `data-one-line` on the seconds |
+
+Play must render at least one `[data-box]`. Title and Masa tamat have none of these markers; those screens still fail on horizontal overflow.
+
 ## Sound
 
 Implemented in [`src/audio.ts`](../src/audio.ts):

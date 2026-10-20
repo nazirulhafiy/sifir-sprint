@@ -23,8 +23,12 @@ Watched paths (also in [`scripts/docs_check_pr.py`](../scripts/docs_check_pr.py)
 Paths are matched after stripping a leading `./`. A `.github/` prefix is kept
 (it is not treated as a dot-slash).
 
-**Not watched:** `e2e/`, `package.json` / lockfile-only churn, docs-only PRs, and
+**Not watched:** `e2e/`, `tools/layout-check.mjs`, `package.json` / lockfile-only churn, docs-only PRs, and
 workflow edits other than the two analytics workflows listed above.
+
+The **Layout check** workflow (`.github/workflows/layout-check.yml`) is separate.
+It loads the built game in Chromium and WebKit and is described in
+[design.md](design.md) (Layout check). It does not deploy.
 
 ## Escape hatch
 
