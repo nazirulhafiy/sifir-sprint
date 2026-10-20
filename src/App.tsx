@@ -451,6 +451,7 @@ function PlayScreen({
         </div>
         <div
           data-testid="timer"
+          data-box
           className={`wonky-orb relative h-[88px] w-[88px] shrink-0 ${low ? 'tick-low' : ''}`}
         >
           <div
@@ -458,7 +459,7 @@ function PlayScreen({
           >
             <div className="px-1">
               <p className="text-[10px] font-bold uppercase tracking-widest">Masa</p>
-              <p className="text-4xl font-bold leading-none tabular">
+              <p data-one-line className="text-4xl font-bold leading-none tabular">
                 {formatMasa(seconds)}
               </p>
             </div>
@@ -564,21 +565,26 @@ function QuestionCard({
   return (
     <section
       data-testid="soalan"
+      data-box
       data-a={soalan.a}
       data-b={soalan.b}
       className={`ink-thick wonky relative mt-2 mb-2 flex min-h-0 flex-1 flex-col px-4 pt-4 pb-3 text-center ${fill}`}
     >
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-between gap-2">
+      <div data-box className="flex min-h-0 flex-1 flex-col items-center justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em]">Soalan</p>
         <p
           key={`${soalan.a}x${soalan.b}-${input}-${flash ?? 'idle'}`}
           data-testid="equation"
+          data-box
+          data-one-line
           className="pop min-h-0 text-[clamp(2rem,5.5vh,3.75rem)] font-bold leading-none tracking-tight tabular"
         >
           {soalan.a} <span className="text-pink">×</span> {soalan.b}
         </p>
         <p
           data-testid="input"
+          data-box
+          data-one-line
           className="ink wonky-sm relative z-10 shrink-0 min-h-14 min-w-24 self-center bg-butter px-4 text-5xl font-bold tabular"
         >
           {input || '?'}
@@ -602,9 +608,10 @@ function StatPill({
   return (
     <div
       data-testid={`stat-${label.toLowerCase().replace(/\s+/g, '-')}`}
+      data-box
       className={`ink wonky-pill px-3 py-2.5 ${accent ? 'bg-gold' : 'bg-teal'}`}
     >
-      <p className="text-[10px] font-bold uppercase tracking-widest">{label}</p>
+      <p data-one-line className="text-[10px] font-bold uppercase tracking-widest">{label}</p>
       <p className="text-2xl font-bold leading-none tabular">
         {value}
         {hint && (
